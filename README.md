@@ -77,18 +77,87 @@ Script sẽ tạo 12 tài khoản mẫu (10 học sinh + 2 giáo viên), 20 bài
 
 ---
 
-## Build & Deploy
+## Quy trình làm việc với Git (bắt buộc đọc)
+
+> Push thẳng lên `master` = deploy thẳng ra production. Làm sai sẽ làm hỏng app cho toàn bộ học sinh đang dùng.
+
+### Nguyên tắc
+
+| Việc được làm | Việc KHÔNG được làm |
+|---|---|
+| Tạo branch mới cho mỗi tính năng/fix | ~~Push thẳng lên `master`~~ |
+| Mở Pull Request, chờ review | ~~Merge PR của chính mình~~ |
+| Test local trước khi push | ~~Push code chưa chạy được~~ |
+| Commit message rõ ràng | ~~`git push -f` (force push)~~ |
+
+### Quy trình chuẩn
 
 ```bash
-# Build production
-npm run build
+# 1. Luôn bắt đầu từ master mới nhất
+git checkout master
+git pull
 
-# Deploy lên Firebase Hosting (cần đăng nhập Firebase CLI trước)
+# 2. Tạo branch mới (đặt tên theo tính năng)
+git checkout -b feature/ten-tinh-nang
+# hoặc: fix/mo-ta-loi
+
+# 3. Code, test local (npm run dev), kiểm tra không có lỗi console
+
+# 4. Commit
+git add .
+git commit -m "mô tả ngắn gọn thay đổi"
+
+# 5. Push branch lên GitHub
+git push origin feature/ten-tinh-nang
+
+# 6. Mở Pull Request trên GitHub → chờ trưởng nhóm review
+```
+
+### Khi PR được approve
+
+Trưởng nhóm merge vào `master` → GitHub Actions tự động build và deploy lên `https://kindness-school.web.app`.
+
+### Xem kết quả deploy
+
+- **GitHub** → tab **Actions** để xem tiến trình build
+- Nếu build thất bại → xem log lỗi, fix rồi push lại lên branch → CI tự chạy lại
+
+---
+
+## CI/CD — Tự động deploy
+
+Project dùng **GitHub Actions** để tự động deploy:
+
+| Sự kiện | Kết quả |
+|---------|---------|
+| Push lên `master` | Deploy thẳng ra production |
+| Mở Pull Request vào `master` | Deploy vào URL preview tạm thời để review |
+
+### Setup lần đầu (trưởng nhóm thực hiện)
+
+Cần thêm các **GitHub Secrets** tại `Settings → Secrets → Actions`:
+
+| Secret | Lấy ở đâu |
+|--------|-----------|
+| `FIREBASE_SERVICE_ACCOUNT` | Firebase Console → Project Settings → Service accounts → Generate new private key (copy toàn bộ nội dung JSON) |
+| `VITE_FIREBASE_API_KEY` | Firebase Console → Project Settings → Your apps |
+| `VITE_FIREBASE_AUTH_DOMAIN` | Như trên |
+| `VITE_FIREBASE_PROJECT_ID` | Như trên |
+| `VITE_FIREBASE_STORAGE_BUCKET` | Như trên |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Như trên |
+| `VITE_FIREBASE_APP_ID` | Như trên |
+
+---
+
+## Build & Deploy thủ công (khi cần)
+
+```bash
+npm run build
 firebase login
 firebase deploy
 ```
 
-URL sau khi deploy: `https://kindness-school.web.app`
+URL production: `https://kindness-school.web.app`
 
 ---
 
