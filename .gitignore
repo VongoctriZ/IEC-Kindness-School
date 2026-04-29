@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables (chứa API keys — KHÔNG BAO GIỜ commit)
+.env
+.env.local
+*.local
+
+# Firebase Admin SDK private key — CỰC KỲ NGUY HIỂM nếu bị leak
+*-firebase-adminsdk-*.json
+firebase-adminsdk*.json
+
+# Design references & assets không thuộc source code
+component/
+design-reference/
+inspiration/
+screenshots/
+
+# File cá nhân không liên quan đến code
+*.pdf
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

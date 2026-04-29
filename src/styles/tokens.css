@@ -1,0 +1,64 @@
+:root {
+  /* Brand */
+  --color-primary:        #6B6FD8;
+  --color-primary-hover:  #5558C8;
+  --color-primary-light:  #EEEEFF;
+
+  /* Accent */
+  --color-accent:         #22C55E;
+  --color-accent-hover:   #16A34A;
+  --color-accent-light:   #DCFCE7;
+
+  /* Semantic extras */
+  --color-yellow:         #F59E0B;
+  --color-yellow-light:   #FEF3C7;
+  --color-error:          #EF4444;
+  --color-error-light:    #FEE2E2;
+
+  /* Surfaces */
+  --color-bg:             #F5F7FA;
+  --color-surface:        #FFFFFF;
+  --color-nav-bg:         rgba(240, 250, 240, 0.96);
+
+  /* Text */
+  --color-text:           #1A1A2E;
+  --color-text-2:         #6B7280;
+  --color-text-3:         #9CA3AF;
+  --color-text-disabled:  #9CA3AF;
+
+  /* Shadows */
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow:     0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md:  0 4px 16px rgba(0, 0, 0, 0.10);
+  --shadow-lg:  0 8px 32px rgba(0, 0, 0, 0.12);
+
+  /* Border radius */
+  --r-sm:   8px;
+  --r-md:   12px;
+  --r-lg:   16px;
+  --r-xl:   24px;
+  --r-pill: 999px;
+
+  /* Spacing */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-6:  24px;
+  --space-8:  32px;
+
+  /* Typography */
+  --font:        'Inter', 'Segoe UI', sans-serif;
+  --text-xs:     0.75rem;
+  --text-sm:     0.875rem;
+  --text-base:   1rem;
+  --text-lg:     1.125rem;
+  --text-xl:     1.25rem;
+  --text-2xl:    1.5rem;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-bold:   700;
+
+  /* Layout */
+  --nav-h: 64px;
+}

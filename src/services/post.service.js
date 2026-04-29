@@ -1,0 +1,130 @@
+import {
+  collection, addDoc, doc, getDoc, updateDoc, deleteDoc,
+  query, orderBy, limit, where,
+  onSnapshot, serverTimestamp, increment, runTransaction,
+} from 'firebase/firestore'
+import { db } from './firebase'
+import { buildPostDoc } from '../mvc/models/post.model'
+import { buildCommentDoc } from '../mvc/models/comment.model'
+import { POINTS, FEED_PAGE_SIZE } from '../lib/constants'
+import { addPoints, getUserById } from './user.service'
+import { createNotification } from './notification.service'
+
+export async function createPost(uid, profile, content, mediaUrl = null, mediaType = null) {
+  const data = buildPostDoc(uid, profile, content, mediaUrl, mediaType)
+  const ref  = await addDoc(collection(db, 'posts'), {
+    ...data,
+    createdAt: serverTimestamp(),
+  })
+  await addPoints(uid, POINTS.POST)
+  return ref.id
+}
+
+export function subscribeToPosts(callback, onError, n = FEED_PAGE_SIZE) {
+  const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(n))
+  return onSnapshot(q,
+    snap => callback(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
+    err  => { console.error('[subscribeToPosts]', err.code, err.message); onError?.(err) },
+  )
+}
+
+export function subscribeToUserPosts(uid, callback, onError) {
+  const q = query(
+    collection(db, 'posts'),
+    where('authorId', '==', uid),
+    orderBy('createdAt', 'desc'),
+  )
+  return onSnapshot(q,
+    snap => callback(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
+    err  => { console.error('[subscribeToUserPosts]', err.code, err.message); onError?.(err) },
+  )
+}
+
+export async function toggleLike(postId, uid) {
+  const likeRef = doc(db, 'posts', postId, 'likes', uid)
+  const likeSnap = await getDoc(likeRef)
+  const postRef  = doc(db, 'posts', postId)
+
+  let nowLiked = false
+
+  await runTransaction(db, async tx => {
+    const postSnap = await tx.get(postRef)
+    if (!postSnap.exists()) throw new Error('Bài viết không tồn tại')
+
+    if (likeSnap.exists()) {
+      tx.delete(likeRef)
+      tx.update(postRef, { likeCount: increment(-1) })
+      nowLiked = false
+    } else {
+      tx.set(likeRef, { uid, createdAt: serverTimestamp() })
+      tx.update(postRef, { likeCount: increment(1) })
+      nowLiked = true
+      const postData = postSnap.data()
+      const authorId = postData.authorId
+      if (authorId !== uid) {
+        addPoints(authorId, POINTS.LIKE_RECEIVED)
+      }
+      // Notification (outside transaction — non-critical)
+      const liker = await getUserById(uid)
+      createNotification(authorId, {
+        type:         'like',
+        fromUid:      uid,
+        fromName:     liker?.displayName ?? 'Ai đó',
+        fromPhotoURL: liker?.photoURL ?? null,
+        postId:       postId,
+        postSnippet:  postData.content,
+      })
+    }
+  })
+
+  return nowLiked
+}
+
+export async function isLikedByUser(postId, uid) {
+  const snap = await getDoc(doc(db, 'posts', postId, 'likes', uid))
+  return snap.exists()
+}
+
+export async function deletePost(postId, uid) {
+  const snap = await getDoc(doc(db, 'posts', postId))
+  if (!snap.exists() || snap.data().authorId !== uid) throw new Error('Không có quyền xoá')
+  await deleteDoc(doc(db, 'posts', postId))
+}
+
+export async function deleteComment(commentId, postId) {
+  await deleteDoc(doc(db, 'comments', commentId))
+  await updateDoc(doc(db, 'posts', postId), { commentCount: increment(-1) })
+}
+
+export async function addComment(postId, uid, profile, content) {
+  const data = buildCommentDoc(postId, uid, profile, content)
+  await addDoc(collection(db, 'comments'), { ...data, createdAt: serverTimestamp() })
+  const postSnap = await getDoc(doc(db, 'posts', postId))
+  await updateDoc(doc(db, 'posts', postId), { commentCount: increment(1) })
+  await addPoints(uid, POINTS.COMMENT)
+  if (postSnap.exists()) {
+    const postData  = postSnap.data()
+    const authorId  = postData.authorId
+    createNotification(authorId, {
+      type:         'comment',
+      fromUid:      uid,
+      fromName:     profile.displayName ?? 'Ai đó',
+      fromPhotoURL: profile.photoURL ?? null,
+      postId,
+      postSnippet:  postData.content,
+    })
+  }
+}
+
+export function subscribeToComments(postId, callback, onError, limitCount = 6) {
+  const q = query(
+    collection(db, 'comments'),
+    where('postId', '==', postId),
+    orderBy('createdAt', 'asc'),
+    limit(limitCount),
+  )
+  return onSnapshot(q,
+    snap => callback(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
+    err  => { console.error('[subscribeToComments]', err.code, err.message); onError?.(err) },
+  )
+}
