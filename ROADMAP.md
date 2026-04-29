@@ -1,6 +1,6 @@
 # IEC-KindnessSchool — Roadmap phát triển
 
-> Cập nhật lần cuối: 2026-04-29 (sprint 5)
+> Cập nhật lần cuối: 2026-04-29 (sprint 6)
 
 ---
 
@@ -34,12 +34,13 @@
 
 ### Checklist trước khi deploy
 
-- [ ] `npm run build` sạch, không lỗi
+- [x] `npm run build` sạch, không lỗi
 - [ ] Google Sign-In hoạt động với domain thật (thêm vào Firebase Console → Authentication → Authorized domains)
-- [ ] Firebase Storage đã bật, `storage.rules` đã deploy
-- [ ] `VITE_FIREBASE_STORAGE_BUCKET` set đúng trong môi trường hosting
-- [ ] Firestore Rules đã deploy (`firebase deploy --only firestore,storage`)
-- [ ] Tất cả env vars `VITE_FIREBASE_*` được set trên hosting (không dùng `.env` local)
+- [x] Firebase Storage đã bật, `storage.rules` đã deploy
+- [x] `VITE_FIREBASE_STORAGE_BUCKET` set đúng trong môi trường hosting (inline trong workflow)
+- [x] Firestore Rules đã deploy (`firebase deploy --only firestore,storage`)
+- [x] Tất cả env vars `VITE_FIREBASE_*` được set trên hosting — inline trong `.github/workflows/deploy.yml`
+- [x] GitHub Actions CI/CD cấu hình xong — auto deploy khi push lên `master`
 - [ ] Lighthouse Performance > 80
 - [ ] Test trên điện thoại Android 375px (mobile-first)
 - [ ] Thử tải đồng thời ≥ 10 user

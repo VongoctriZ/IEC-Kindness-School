@@ -1,6 +1,6 @@
 # IEC-KindnessSchool — Báo cáo tiến độ dự án
 
-> Cập nhật: 2026-04-29 · Phiên bản 1.1
+> Cập nhật: 2026-04-29 · Phiên bản 1.2
 
 ---
 
@@ -215,6 +215,16 @@ Sprint 5 — Firebase Upgrade & Deploy Setup
 ├── Cập nhật firebase.js: thêm storageBucket + export storage
 ├── Firebase Hosting cấu hình xong (.firebaserc, firebase.json)
 └── Git init + .gitignore (bảo vệ .env, admin SDK key, design assets)
+
+Sprint 6 — GitHub & CI/CD
+├── Push toàn bộ project lên GitHub (87 files)
+├── Fix bảo mật seed script: đọc admin key path + password từ env thay vì hardcode
+├── Tạo .env.example — template cho thành viên mới clone repo
+├── Tạo README.md — hướng dẫn cài đặt, git workflow, CI/CD cho toàn nhóm
+├── Tạo .github/workflows/deploy.yml — GitHub Actions tự động deploy:
+│   ├── Push lên master → deploy production (live channel)
+│   └── Mở PR vào master → deploy preview URL để review
+└── Xác nhận: chỉ cần 1 GitHub Secret (FIREBASE_SERVICE_ACCOUNT); VITE_* inline trong workflow
 ```
 
 ### Trạng thái hiện tại
@@ -223,7 +233,7 @@ Sprint 5 — Firebase Upgrade & Deploy Setup
 |-----------|-----------|
 | Phase 1 — Core features | ✅ Hoàn thành |
 | Phase 2 — Social features | ✅ 4/6 tính năng xong |
-| Phase 3 — Deploy | ✅ Cấu hình xong, sẵn sàng deploy |
+| Phase 3 — Deploy | ✅ CI/CD tự động qua GitHub Actions — production live tại `kindness-school.web.app` |
 
 ---
 
@@ -232,11 +242,12 @@ Sprint 5 — Firebase Upgrade & Deploy Setup
 ### Checklist trước khi deploy
 
 **Kỹ thuật:**
-- [ ] `npm run build` sạch, không warning/error
+- [x] `npm run build` sạch, không warning/error
 - [ ] Google Sign-In hoạt động với domain thật (thêm vào Firebase Console → Authentication → Authorized domains)
-- [ ] Firebase Storage đã bật, `storage.rules` đã deploy
-- [ ] Firestore + Storage Rules deploy: `firebase deploy --only firestore,storage`
-- [ ] Tất cả env vars `VITE_FIREBASE_*` được set trên môi trường hosting
+- [x] Firebase Storage đã bật, `storage.rules` đã deploy
+- [x] Firestore + Storage Rules deploy: `firebase deploy --only firestore,storage`
+- [x] Tất cả env vars `VITE_FIREBASE_*` được set — inline trong GitHub Actions workflow
+- [x] CI/CD tự động qua GitHub Actions (`.github/workflows/deploy.yml`)
 - [ ] Test trên điện thoại Android/iOS 375px
 
 **Nội dung:**
@@ -311,7 +322,43 @@ onLikeAdded     → +2 điểm cho tác giả bài
 
 ---
 
-## 7. Thông tin kỹ thuật cho thành viên mới
+## 7. CI/CD — GitHub Actions
+
+### Quy trình tự động
+
+```
+Developer push lên branch feature/...
+  → Mở Pull Request vào master
+    → GitHub Actions chạy: npm ci → npm run build → deploy preview URL
+      → Review + approve
+        → Merge vào master
+          → GitHub Actions tự deploy production: kindness-school.web.app
+```
+
+### Cấu hình (`.github/workflows/deploy.yml`)
+
+| Sự kiện | Kết quả |
+|---------|---------|
+| Push lên `master` | Deploy thẳng production (live channel) |
+| Mở PR vào `master` | Deploy preview URL tạm thời để review |
+
+### Secret duy nhất cần thiết
+
+Chỉ cần 1 GitHub Secret tại `repo → Settings → Secrets and variables → Actions`:
+
+| Secret | Nội dung |
+|--------|---------|
+| `FIREBASE_SERVICE_ACCOUNT` | Toàn bộ nội dung file JSON từ Firebase Console → Project Settings → Service accounts → Generate new private key |
+
+> `VITE_FIREBASE_*` không phải secret thật — được nhúng thẳng vào JS bundle, ai vào website cũng thấy. Security thực sự đến từ Firestore/Storage Rules. Vì vậy các giá trị này được inline trong workflow file, không cần lưu thành GitHub Secret.
+
+### Cập nhật Service Account
+
+Nếu cần đổi quyền quản trị Firebase: chỉ cần cập nhật giá trị `FIREBASE_SERVICE_ACCOUNT` trong GitHub Secrets — pipeline tự dùng key mới cho lần deploy tiếp theo.
+
+---
+
+## 8. Thông tin kỹ thuật cho thành viên mới
 
 ### Chạy project local
 
@@ -360,4 +407,4 @@ src/
 
 ---
 
-*File được tạo 2026-04-28, cập nhật lần cuối 2026-04-29 (Sprint 5 — Firebase Blaze + Hosting).*
+*File được tạo 2026-04-28, cập nhật lần cuối 2026-04-29 (Sprint 6 — GitHub + CI/CD GitHub Actions).*
