@@ -135,17 +135,13 @@ Project dùng **GitHub Actions** để tự động deploy:
 
 ### Setup lần đầu (trưởng nhóm thực hiện)
 
-Cần thêm các **GitHub Secrets** tại `Settings → Secrets → Actions`:
+Chỉ cần thêm **1 secret** tại `GitHub repo → Settings → Secrets and variables → Actions → New repository secret`:
 
 | Secret | Lấy ở đâu |
 |--------|-----------|
-| `FIREBASE_SERVICE_ACCOUNT` | Firebase Console → Project Settings → Service accounts → Generate new private key (copy toàn bộ nội dung JSON) |
-| `VITE_FIREBASE_API_KEY` | Firebase Console → Project Settings → Your apps |
-| `VITE_FIREBASE_AUTH_DOMAIN` | Như trên |
-| `VITE_FIREBASE_PROJECT_ID` | Như trên |
-| `VITE_FIREBASE_STORAGE_BUCKET` | Như trên |
-| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Như trên |
-| `VITE_FIREBASE_APP_ID` | Như trên |
+| `FIREBASE_SERVICE_ACCOUNT` | Firebase Console → Project Settings → Service accounts → **Generate new private key** → copy toàn bộ nội dung file JSON |
+
+> Các biến `VITE_FIREBASE_*` đã được đặt thẳng trong file workflow vì chúng không phải secret thật sự — Firebase client config được nhúng vào JS bundle và ai vào website cũng đọc được. Security đến từ Firestore Security Rules, không phải từ việc giấu API key.
 
 ---
 
