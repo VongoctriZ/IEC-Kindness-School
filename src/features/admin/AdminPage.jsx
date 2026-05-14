@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { getPendingTeachers, approveTeacher, rejectTeacher } from '../../services/user.service'
 import { useAuthController } from '../../mvc/controllers/useAuthController'
 import useAuthStore from '../../store/useAuthStore'
@@ -52,6 +53,16 @@ export default function AdminPage() {
 
   return (
     <div className={styles.root}>
+      {/* Top bar — logo + back link */}
+      <div className={styles.topBar}>
+        <Link to="/" className={styles.logo}>
+          <span className={styles.logoIco}>🌱</span>
+          <span className={styles.logoName}>IEC Kindness</span>
+        </Link>
+        <Link to="/" className={styles.backBtn}>← Về trang chủ</Link>
+      </div>
+
+      <div className={styles.content}>
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>🛡️ Trang Quản trị</h1>
@@ -121,6 +132,7 @@ export default function AdminPage() {
       <p className={styles.note}>
         Để tạo tài khoản admin: vào Firebase Console → Firestore → collection <code>users</code> → tìm uid của người dùng → đổi field <code>role</code> thành <code>admin</code>.
       </p>
+      </div>
     </div>
   )
 }

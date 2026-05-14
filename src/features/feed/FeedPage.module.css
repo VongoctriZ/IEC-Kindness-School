@@ -116,9 +116,13 @@
 /* Mini leaderboard */
 .lbRow {
   display: flex; align-items: center; gap: 8px;
-  padding: 7px 0; border-bottom: 1px solid var(--color-bg);
+  padding: 7px 4px; border-bottom: 1px solid var(--color-bg);
+  text-decoration: none;
+  border-radius: var(--r-sm);
+  transition: background 0.12s;
 }
 .lbRow:last-child { border-bottom: none; }
+.lbRow:hover { background: var(--color-bg); }
 .lbRank {
   width: 26px; height: 26px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;

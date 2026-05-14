@@ -99,7 +99,7 @@ export default function FeedPage() {
               <Link to="/leaderboard" className={styles.sideTitleLink}>Xem tất cả →</Link>
             </div>
             {topUsers.map((u, i) => (
-              <div key={u.uid} className={styles.lbRow}>
+              <Link key={u.uid} to={`/profile/${u.uid}`} className={styles.lbRow}>
                 <span className={`${styles.lbRank} ${styles[`r${i + 1}`] ?? styles.rx}`}>
                   {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
                 </span>
@@ -109,7 +109,7 @@ export default function FeedPage() {
                   <div className={styles.lbSub}>{u.grade}</div>
                 </div>
                 <div className={styles.lbPts}>⭐ {u.totalPoints}</div>
-              </div>
+              </Link>
             ))}
           </div>
 
