@@ -155,7 +155,7 @@ export default function ProfilePage() {
             {posts.length === 0
               ? <div className={styles.empty}>Chưa có bài viết nào.</div>
               : posts.map(p => (
-                  <PostCard key={p.id} post={p} isLiked={false} currentUid={user?.uid} />
+                  <PostCard key={p.id} post={p} isLiked={false} currentUid={user?.uid} currentUserRole={myProfile?.role} />
                 ))
             }
           </div>

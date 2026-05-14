@@ -10,8 +10,10 @@ export default function PostCard({ post, isLiked, onLike, onDelete, currentUid, 
   const [showComments, setShowComments] = useState(false)
   useScrollReveal(ref)
 
-  const isAuthor  = currentUid === post.authorId
-  const canDelete = isAuthor || currentUserRole === 'teacher'
+  const isAuthor   = currentUid === post.authorId
+  const canDelete  = isAuthor || currentUserRole === 'teacher' || currentUserRole === 'admin'
+  // Use live role when author is the current user (avoids stale snapshot in post doc)
+  const displayRole = (isAuthor && currentUserRole) ? currentUserRole : post.authorRole
 
   return (
     <article ref={ref} className={`${styles.card} reveal ${delay}`}>
@@ -28,8 +30,8 @@ export default function PostCard({ post, isLiked, onLike, onDelete, currentUid, 
           to={`/profile/${post.authorId}`}
         />
         <div className={styles.badges}>
-          <span className={`${styles.badge} ${getRoleClass(post.authorRole, styles)}`}>
-            {getRoleLabel(post.authorRole)}
+          <span className={`${styles.badge} ${getRoleClass(displayRole, styles)}`}>
+            {getRoleLabel(displayRole)}
           </span>
           <span className={styles.points}>+10 ✨</span>
         </div>
