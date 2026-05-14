@@ -22,6 +22,7 @@
   transition: border-color 0.2s;
 }
 .input:focus   { border-color: var(--color-accent); }
+.input.hasIcon { padding-right: 44px; }
 .input.hasError { border-color: var(--color-error); }
 .input:disabled { opacity: 0.6; cursor: not-allowed; background: var(--color-bg); }
 .input::placeholder { color: var(--color-text-3); }
@@ -33,7 +34,22 @@
   transform: translateY(-50%);
   color: var(--color-text-3);
   font-size: 1.1rem;
+  display: flex;
+  align-items: center;
 }
+.icon button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  color: var(--color-text-3);
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+.icon button:hover { color: var(--color-text); }
 
 .foot {
   display: flex;

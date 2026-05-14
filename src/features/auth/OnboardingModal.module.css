@@ -1,0 +1,73 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal {
+  background: white;
+  border-radius: var(--r-lg);
+  padding: 36px 32px 32px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: var(--shadow-dropdown);
+}
+
+.icon   { font-size: 3rem; margin-bottom: 12px; }
+.title  { font-size: var(--text-xl); font-weight: 800; margin-bottom: 6px; }
+.sub    { font-size: var(--text-sm); color: var(--color-text-2); margin-bottom: 24px; }
+
+.roleToggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.roleBtn {
+  flex: 1;
+  padding: 12px 8px;
+  border-radius: var(--r-md);
+  border: 2px solid #E5E7EB;
+  background: white;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.roleBtn:hover        { border-color: var(--color-primary); color: var(--color-primary); }
+.roleBtnActive        { border-color: var(--color-primary); background: var(--color-primary-light); color: var(--color-primary); }
+
+.gradeInput {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: var(--r-md);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  outline: none;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.gradeInput:focus { border-color: var(--color-accent); }
+.gradeInput::placeholder { color: var(--color-text-3); }
+
+.teacherNote {
+  background: #FFF7ED;
+  color: #92400E;
+  font-size: var(--text-xs);
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  margin-bottom: 16px;
+  text-align: left;
+  line-height: 1.5;
+}
+
+.btn { width: 100%; margin-top: 4px; }

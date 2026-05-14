@@ -30,7 +30,7 @@ export default function Input({
           maxLength={maxLength}
           value={value}
           onChange={onChange}
-          className={`${styles.input} ${error ? styles.hasError : ''}`}
+          className={`${styles.input} ${error ? styles.hasError : ''} ${icon ? styles.hasIcon : ''}`}
         />
         {icon && <span className={styles.icon}>{icon}</span>}
       </div>

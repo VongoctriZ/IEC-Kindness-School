@@ -6,8 +6,10 @@ export const POINTS = {
 }
 
 export const ROLES = {
-  STUDENT: 'student',
-  TEACHER: 'teacher',
+  STUDENT:         'student',
+  TEACHER:         'teacher',
+  PENDING_TEACHER: 'pending_teacher',
+  ADMIN:           'admin',
 }
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024  // 10 MB

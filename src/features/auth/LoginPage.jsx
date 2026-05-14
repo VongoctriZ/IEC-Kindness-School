@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuthController } from '../../mvc/controllers/useAuthController'
+import { ROLES } from '../../lib/constants'
 import Button from '../../components/Button/Button'
 import Input  from '../../components/Input/Input'
 import styles from './LoginPage.module.css'
@@ -13,6 +14,14 @@ const GOOGLE_ICON = (
   </svg>
 )
 
+function EyeToggle({ show, onToggle }) {
+  return (
+    <button type="button" onClick={onToggle} title={show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}>
+      {show ? '🙈' : '👁️'}
+    </button>
+  )
+}
+
 export default function LoginPage() {
   const [tab, setTab] = useState('login')
   const { loading, error, login, register, loginWithGoogle, resetPassword } = useAuthController()
@@ -23,12 +32,15 @@ export default function LoginPage() {
   // Login state
   const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
+  const [showPass, setShowPass] = useState(false)
 
   // Register state
   const [rEmail,    setREmail]    = useState('')
   const [rPassword, setRPassword] = useState('')
   const [rName,     setRName]     = useState('')
   const [rGrade,    setRGrade]    = useState('')
+  const [rRole,     setRRole]     = useState(ROLES.STUDENT)
+  const [showRPass, setShowRPass] = useState(false)
   const [strength,  setStrength]  = useState(0)
   const [terms,     setTerms]     = useState(false)
 
@@ -69,8 +81,14 @@ export default function LoginPage() {
           <Input label="Email trường học" type="email" placeholder="ten@iec.edu.vn"
             value={email} onChange={e => setEmail(e.target.value)} />
           <div style={{ marginTop: 14 }}>
-            <Input label="Mật khẩu" type="password" placeholder="Nhập mật khẩu"
-              value={password} onChange={e => setPassword(e.target.value)} />
+            <Input
+              label="Mật khẩu"
+              type={showPass ? 'text' : 'password'}
+              placeholder="Nhập mật khẩu"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              icon={<EyeToggle show={showPass} onToggle={() => setShowPass(v => !v)} />}
+            />
           </div>
           <div className={styles.forgotWrap}>
             <button type="button" className={styles.forgot}
@@ -128,10 +146,34 @@ export default function LoginPage() {
         <form onSubmit={e => {
           e.preventDefault()
           if (!terms) return
-          register(rEmail, rPassword, rName, rGrade)
+          register(rEmail, rPassword, rName, rGrade, rRole)
         }}>
           <h2 className={styles.title}>Tạo tài khoản</h2>
           <p className={styles.sub}>Tham gia cộng đồng tử tế ngay hôm nay! 🌟</p>
+
+          {/* Role toggle */}
+          <div className={styles.roleToggle}>
+            <button
+              type="button"
+              className={`${styles.roleBtn} ${rRole === ROLES.STUDENT ? styles.roleBtnActive : ''}`}
+              onClick={() => setRRole(ROLES.STUDENT)}
+            >
+              🎒 Học sinh
+            </button>
+            <button
+              type="button"
+              className={`${styles.roleBtn} ${rRole === ROLES.PENDING_TEACHER ? styles.roleBtnActive : ''}`}
+              onClick={() => setRRole(ROLES.PENDING_TEACHER)}
+            >
+              👨‍🏫 Giáo viên
+            </button>
+          </div>
+
+          {rRole === ROLES.PENDING_TEACHER && (
+            <div className={styles.teacherNote}>
+              ℹ️ Tài khoản giáo viên sẽ được quản trị viên duyệt trước khi kích hoạt.
+            </div>
+          )}
 
           <Input label="Họ và tên" placeholder="Nguyễn Văn A"
             value={rName} onChange={e => setRName(e.target.value)} />
@@ -139,13 +181,21 @@ export default function LoginPage() {
             <Input label="Email trường học" type="email" placeholder="ten@iec.edu.vn"
               value={rEmail} onChange={e => setREmail(e.target.value)} />
           </div>
+          {rRole === ROLES.STUDENT && (
+            <div style={{ marginTop: 14 }}>
+              <Input label="Lớp học" placeholder="VD: 10A1, 11B2, 12A3..."
+                value={rGrade} onChange={e => setRGrade(e.target.value)} />
+            </div>
+          )}
           <div style={{ marginTop: 14 }}>
-            <Input label="Lớp học" placeholder="VD: 10A1, 11B2, 12A3..."
-              value={rGrade} onChange={e => setRGrade(e.target.value)} />
-          </div>
-          <div style={{ marginTop: 14 }}>
-            <Input label="Mật khẩu" type="password" placeholder="Tối thiểu 8 ký tự"
-              value={rPassword} onChange={e => { setRPassword(e.target.value); checkStrength(e.target.value) }} />
+            <Input
+              label="Mật khẩu"
+              type={showRPass ? 'text' : 'password'}
+              placeholder="Tối thiểu 8 ký tự"
+              value={rPassword}
+              onChange={e => { setRPassword(e.target.value); checkStrength(e.target.value) }}
+              icon={<EyeToggle show={showRPass} onToggle={() => setShowRPass(v => !v)} />}
+            />
           </div>
 
           {/* Strength bar */}

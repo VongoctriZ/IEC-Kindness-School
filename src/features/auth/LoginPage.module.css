@@ -110,6 +110,37 @@
 .terms input { margin-top: 2px; accent-color: var(--color-primary); flex-shrink: 0; }
 .terms a { color: var(--color-primary); font-weight: 600; }
 
+/* Role toggle */
+.roleToggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.roleBtn {
+  flex: 1;
+  padding: 10px 8px;
+  border-radius: var(--r-md);
+  border: 2px solid #E5E7EB;
+  background: white;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.roleBtn:hover       { border-color: var(--color-primary); color: var(--color-primary); }
+.roleBtnActive       { border-color: var(--color-primary); background: var(--color-primary-light); color: var(--color-primary); }
+
+.teacherNote {
+  background: #FFF7ED;
+  color: #92400E;
+  font-size: var(--text-xs);
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
 .backBtn {
   display: inline-flex;
   align-items: center;

@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { signIn, signUp, signInWithGoogle, signOutUser, sendPasswordReset } from '../../services/auth.service'
+import useAuthStore from '../../store/useAuthStore'
+import { ROLES } from '../../lib/constants'
 
 export function useAuthController() {
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState('')
   const navigate = useNavigate()
+  const setNeedsOnboarding = useAuthStore(s => s.setNeedsOnboarding)
 
   async function login(email, password) {
     setLoading(true)
@@ -20,12 +23,12 @@ export function useAuthController() {
     }
   }
 
-  async function register(email, password, displayName, grade) {
+  async function register(email, password, displayName, grade, role = ROLES.STUDENT) {
     setLoading(true)
     setError('')
     try {
-      await signUp(email, password, displayName, grade)
-      navigate('/')
+      await signUp(email, password, displayName, grade, role)
+      navigate(role === ROLES.PENDING_TEACHER ? '/pending' : '/')
     } catch (e) {
       setError(mapError(e.code))
     } finally {
@@ -37,7 +40,8 @@ export function useAuthController() {
     setLoading(true)
     setError('')
     try {
-      await signInWithGoogle()
+      const { isNew } = await signInWithGoogle()
+      if (isNew) setNeedsOnboarding(true)
       navigate('/')
     } catch (e) {
       setError(mapError(e.code))

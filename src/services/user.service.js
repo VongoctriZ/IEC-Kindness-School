@@ -1,11 +1,11 @@
 import {
-  doc, getDoc, setDoc, updateDoc, getDocs,
-  collection, query, orderBy, limit, increment,
+  doc, getDoc, setDoc, updateDoc, getDocs, deleteDoc,
+  collection, query, orderBy, limit, increment, where,
   onSnapshot,
 } from 'firebase/firestore'
 import { db } from './firebase'
 import { buildUserDoc } from '../mvc/models/user.model'
-import { POINTS, LEADERBOARD_SIZE } from '../lib/constants'
+import { POINTS, LEADERBOARD_SIZE, ROLES } from '../lib/constants'
 
 export async function createUserDocument(firebaseUser, extra = {}, isNew = true) {
   const ref  = doc(db, 'users', firebaseUser.uid)
@@ -57,4 +57,22 @@ export async function getUserRank(uid) {
   const all = await getLeaderboard(LEADERBOARD_SIZE)
   const idx = all.findIndex(u => u.uid === uid)
   return idx >= 0 ? idx + 1 : null
+}
+
+export async function getPendingTeachers() {
+  const q = query(
+    collection(db, 'users'),
+    where('role', '==', ROLES.PENDING_TEACHER),
+    orderBy('createdAt', 'asc'),
+  )
+  const snap = await getDocs(q)
+  return snap.docs.map(d => ({ uid: d.id, ...d.data() }))
+}
+
+export async function approveTeacher(uid) {
+  await updateDoc(doc(db, 'users', uid), { role: ROLES.TEACHER })
+}
+
+export async function rejectTeacher(uid) {
+  await updateDoc(doc(db, 'users', uid), { role: 'rejected' })
 }

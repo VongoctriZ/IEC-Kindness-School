@@ -9,12 +9,12 @@ import {
   sendPasswordResetEmail,
 } from 'firebase/auth'
 import { auth } from './firebase'
-import { createUserDocument } from './user.service'
+import { createUserDocument, getUserById } from './user.service'
 
-export async function signUp(email, password, displayName, grade = '') {
+export async function signUp(email, password, displayName, grade = '', role = 'student') {
   const { user } = await createUserWithEmailAndPassword(auth, email, password)
   await updateProfile(user, { displayName })
-  await createUserDocument(user, { displayName, grade })
+  await createUserDocument(user, { displayName, grade, role })
   return user
 }
 
@@ -26,8 +26,8 @@ export async function signIn(email, password) {
 export async function signInWithGoogle() {
   const provider = new GoogleAuthProvider()
   const { user } = await signInWithPopup(auth, provider)
-  await createUserDocument(user, { displayName: user.displayName }, false)
-  return user
+  const existing = await getUserById(user.uid)
+  return { user, isNew: !existing }
 }
 
 export function signOutUser() {

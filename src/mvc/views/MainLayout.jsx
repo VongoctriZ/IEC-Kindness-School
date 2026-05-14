@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { Outlet }   from 'react-router-dom'
-import Navbar from '../../components/Navbar/Navbar'
-import PostModal from '../../features/feed/PostModal'
+import Navbar          from '../../components/Navbar/Navbar'
+import PostModal       from '../../features/feed/PostModal'
+import OnboardingModal from '../../features/auth/OnboardingModal'
+import useAuthStore    from '../../store/useAuthStore'
 import styles from './MainLayout.module.css'
 
 export default function MainLayout() {
   const [postModalOpen, setPostModalOpen] = useState(false)
+  const needsOnboarding = useAuthStore(s => s.needsOnboarding)
 
   return (
     <div className={styles.root}>
@@ -26,6 +29,8 @@ export default function MainLayout() {
       {postModalOpen && (
         <PostModal onClose={() => setPostModalOpen(false)} />
       )}
+
+      {needsOnboarding && <OnboardingModal />}
     </div>
   )
 }
