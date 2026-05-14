@@ -1,6 +1,7 @@
 # IEC-KindnessSchool — Roadmap phát triển
 
-> Cập nhật lần cuối: 2026-04-29 (sprint 6)
+> Cập nhật lần cuối: 2026-05-14 (sprint 7)
+> Chi tiết sub-task và bug backlog: xem **[BACKLOG.md](./BACKLOG.md)**
 
 ---
 
@@ -25,8 +26,9 @@
 | 2.2 | Xem profile người khác | ✅ Xong | Avatar là Link, Leaderboard row là Link, route `/profile/:uid` |
 | 2.3 | Tìm kiếm bài viết / user | ✅ Xong | `SearchPage` tại `/search`; client-side filter, debounce 350ms |
 | 2.4 | Phân quyền Giáo viên | ✅ Xong | Teacher xoá comment/post qua Firestore Rules + nút 🗑 trong UI |
-| 2.5 | Chia sẻ bài viết | ⏳ Chưa bắt đầu | Web Share API + copy link |
-| 2.6 | Facebook / Zalo Sign-In | ⏳ Chưa bắt đầu | Sau Google ổn định |
+| 2.5 | Chia sẻ bài viết | 🔲 Backlog | Web Share API + copy link — xem BACKLOG.md §2.5 |
+| 2.6 | Thông báo real-time (Bell icon) | 🔲 Backlog | Collection đã có, chỉ cần build UI — xem BACKLOG.md §3.1 |
+| 2.7 | Facebook / Zalo Sign-In | ⏸ Tạm hoãn | Sau Google ổn định |
 
 ---
 
