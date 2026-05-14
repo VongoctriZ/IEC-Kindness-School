@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import Avatar from '../Avatar/Avatar'
 import CommentSection from '../CommentSection/CommentSection'
-import { formatRelativeTime } from '../../lib/utils'
+import { formatRelativeTime, getRoleLabel, getRoleClass } from '../../lib/utils'
 import styles from './PostCard.module.css'
 
 export default function PostCard({ post, isLiked, onLike, onDelete, currentUid, currentUserRole, delay = '' }) {
@@ -28,8 +28,8 @@ export default function PostCard({ post, isLiked, onLike, onDelete, currentUid, 
           to={`/profile/${post.authorId}`}
         />
         <div className={styles.badges}>
-          <span className={`${styles.badge} ${post.authorRole === 'teacher' ? styles.teacher : styles.student}`}>
-            {post.authorRole === 'teacher' ? 'Giáo viên' : 'Học sinh'}
+          <span className={`${styles.badge} ${getRoleClass(post.authorRole, styles)}`}>
+            {getRoleLabel(post.authorRole)}
           </span>
           <span className={styles.points}>+10 ✨</span>
         </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { searchUsers, searchPosts } from '../../services/search.service'
-import { formatRelativeTime } from '../../lib/utils'
+import { formatRelativeTime, getRoleLabel, getRoleClass } from '../../lib/utils'
 import Avatar  from '../../components/Avatar/Avatar'
 import Spinner from '../../components/Spinner/Spinner'
 import styles  from './SearchDropdown.module.css'
@@ -133,8 +133,8 @@ export default function SearchDropdown({ isOpen, onClose }) {
                     <div className={styles.rowName}>{u.displayName}</div>
                     <div className={styles.rowMeta}>
                       {u.grade && <span>{u.grade}</span>}
-                      <span className={`${styles.roleTag} ${u.role === 'teacher' ? styles.teacher : styles.student}`}>
-                        {u.role === 'teacher' ? 'Giáo viên' : 'Học sinh'}
+                      <span className={`${styles.roleTag} ${getRoleClass(u.role, styles)}`}>
+                        {getRoleLabel(u.role)}
                       </span>
                     </div>
                   </div>

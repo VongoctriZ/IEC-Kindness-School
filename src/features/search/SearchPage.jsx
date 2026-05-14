@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { searchUsers, searchPosts } from '../../services/search.service'
-import { formatRelativeTime } from '../../lib/utils'
+import { formatRelativeTime, getRoleLabel, getRoleClass } from '../../lib/utils'
 import Avatar  from '../../components/Avatar/Avatar'
 import Spinner from '../../components/Spinner/Spinner'
 import styles  from './SearchPage.module.css'
@@ -112,8 +112,8 @@ export default function SearchPage() {
                   <div className={styles.userName}>{u.displayName}</div>
                   <div className={styles.userMeta}>
                     {u.grade && <span>{u.grade}</span>}
-                    <span className={`${styles.roleTag} ${u.role === 'teacher' ? styles.teacher : styles.student}`}>
-                      {u.role === 'teacher' ? 'Giáo viên' : 'Học sinh'}
+                    <span className={`${styles.roleTag} ${getRoleClass(u.role, styles)}`}>
+                      {getRoleLabel(u.role)}
                     </span>
                   </div>
                 </div>

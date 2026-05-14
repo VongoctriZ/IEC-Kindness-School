@@ -148,6 +148,7 @@
 }
 .teacher { background: #FEF3C7; color: #D97706; }
 .student { background: var(--color-primary-light); color: var(--color-primary); }
+.admin   { background: #EDE9FE; color: #5B21B6; }
 
 .postAuthor { font-size: var(--text-xs); font-weight: 600; color: var(--color-text); margin-bottom: 2px; }
 .postTime   { font-weight: 400; color: var(--color-text-3); }

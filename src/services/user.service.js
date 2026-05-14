@@ -60,13 +60,14 @@ export async function getUserRank(uid) {
 }
 
 export async function getPendingTeachers() {
-  const q = query(
-    collection(db, 'users'),
-    where('role', '==', ROLES.PENDING_TEACHER),
-    orderBy('createdAt', 'asc'),
-  )
+  const q = query(collection(db, 'users'), where('role', '==', ROLES.PENDING_TEACHER))
   const snap = await getDocs(q)
-  return snap.docs.map(d => ({ uid: d.id, ...d.data() }))
+  const docs = snap.docs.map(d => ({ uid: d.id, ...d.data() }))
+  return docs.sort((a, b) => {
+    const ta = a.createdAt?.toDate?.() ?? new Date(a.createdAt ?? 0)
+    const tb = b.createdAt?.toDate?.() ?? new Date(b.createdAt ?? 0)
+    return ta - tb
+  })
 }
 
 export async function approveTeacher(uid) {

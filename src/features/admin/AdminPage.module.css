@@ -50,6 +50,12 @@
   text-align: center;
   padding: 24px 0;
 }
+.errorMsg {
+  color: var(--color-error);
+  font-size: var(--text-sm);
+  text-align: center;
+  padding: 24px 0;
+}
 
 .list { display: flex; flex-direction: column; gap: 12px; }
 

@@ -110,6 +110,7 @@
 }
 .teacher { background: #FEF3C7; color: #D97706; }
 .student { background: var(--color-primary-light); color: var(--color-primary); }
+.admin   { background: #EDE9FE; color: #5B21B6; }
 .userPts { font-size: var(--text-sm); font-weight: 700; color: var(--color-primary); white-space: nowrap; }
 
 /* Post results */

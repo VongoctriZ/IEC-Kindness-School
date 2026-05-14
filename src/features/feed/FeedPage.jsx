@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { getRoleLabel } from '../../lib/utils'
 import { Link }   from 'react-router-dom'
 import { useFeedController }  from '../../mvc/controllers/useFeedController'
 import { useLeaderboard }     from '../../mvc/controllers/usePointsController'
@@ -79,7 +80,7 @@ export default function FeedPage() {
                 <Avatar src={profile.photoURL} name={profile.displayName} uid={user?.uid} size="xl" online />
               </Link>
               <div className={styles.ucName}>{profile.displayName}</div>
-              <div className={styles.ucSub}>{profile.grade} · Học sinh</div>
+              <div className={styles.ucSub}>{profile.grade} · {getRoleLabel(profile.role)}</div>
               <div className={styles.ucStats}>
                 <div className={styles.ucStat}><div className={styles.ucN}>28</div><div className={styles.ucL}>Bài viết</div></div>
                 <div className={styles.ucStat}><div className={styles.ucN}>112</div><div className={styles.ucL}>Likes nhận</div></div>

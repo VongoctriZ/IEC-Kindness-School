@@ -32,6 +32,7 @@
 }
 .student { background: var(--color-accent-light); color: #166534; }
 .teacher { background: #DBEAFE; color: #1E40AF; }
+.admin   { background: #EDE9FE; color: #5B21B6; }
 
 .points {
   background: var(--color-yellow-light);

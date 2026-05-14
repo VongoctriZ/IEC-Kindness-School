@@ -8,15 +8,23 @@ import styles from './AdminPage.module.css'
 export default function AdminPage() {
   const [teachers,   setTeachers]   = useState([])
   const [loading,    setLoading]    = useState(true)
+  const [loadError,  setLoadError]  = useState('')
   const [processing, setProcessing] = useState(null)
   const { logout } = useAuthController()
   const profile = useAuthStore(s => s.profile)
 
   const load = useCallback(async () => {
     setLoading(true)
-    const data = await getPendingTeachers()
-    setTeachers(data)
-    setLoading(false)
+    setLoadError('')
+    try {
+      const data = await getPendingTeachers()
+      setTeachers(data)
+    } catch (err) {
+      console.error('[AdminPage] getPendingTeachers:', err)
+      setLoadError('Không thể tải danh sách. Kiểm tra lại kết nối hoặc quyền Firestore.')
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => { load() }, [load])
@@ -64,6 +72,8 @@ export default function AdminPage() {
 
         {loading ? (
           <p className={styles.empty}>Đang tải...</p>
+        ) : loadError ? (
+          <p className={styles.errorMsg}>{loadError}</p>
         ) : teachers.length === 0 ? (
           <p className={styles.empty}>✅ Không có yêu cầu nào đang chờ duyệt.</p>
         ) : (

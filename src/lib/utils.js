@@ -52,6 +52,19 @@ export function getKindnessTitle(points = 0) {
   return KINDNESS_TITLES[0]
 }
 
+export function getRoleLabel(role) {
+  if (role === 'teacher')         return 'Giáo viên'
+  if (role === 'admin')           return 'Quản trị viên'
+  if (role === 'pending_teacher') return 'Chờ duyệt'
+  return 'Học sinh'
+}
+
+export function getRoleClass(role, s) {
+  if (role === 'teacher') return s.teacher
+  if (role === 'admin')   return s.admin
+  return s.student
+}
+
 /** Tính màu avatar từ tên (để consistent dù không có ảnh) */
 const AVATAR_COLORS = [
   { bg: '#DBEAFE', color: '#1D4ED8', border: '#1D4ED8' },

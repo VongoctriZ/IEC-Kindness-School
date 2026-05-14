@@ -3,7 +3,7 @@ import { useParams }  from 'react-router-dom'
 import { subscribeToUserPosts } from '../../services/post.service'
 import { getUserById, getUserRank } from '../../services/user.service'
 import useAuthStore from '../../store/useAuthStore'
-import { getKindnessTitle } from '../../lib/utils'
+import { getKindnessTitle, getRoleLabel, getRoleClass } from '../../lib/utils'
 import Avatar           from '../../components/Avatar/Avatar'
 import PostCard         from '../../components/PostCard/PostCard'
 import Spinner          from '../../components/Spinner/Spinner'
@@ -93,8 +93,8 @@ export default function ProfilePage() {
               <h1 className={styles.name}>{profile.displayName}</h1>
               <div className={styles.sub}>
                 <span>{profile.grade}</span>
-                <span className={`${styles.badge} ${profile.role === 'teacher' ? styles.teacher : styles.student}`}>
-                  {profile.role === 'teacher' ? 'Giáo viên' : 'Học sinh'}
+                <span className={`${styles.badge} ${getRoleClass(profile.role, styles)}`}>
+                  {getRoleLabel(profile.role)}
                 </span>
                 <span className={styles.joinDate}>Tham gia 2025</span>
               </div>
