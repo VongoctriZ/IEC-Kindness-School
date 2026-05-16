@@ -1,6 +1,6 @@
 # IEC-KindnessSchool — Báo cáo tiến độ dự án
 
-> Cập nhật: 2026-04-29 · Phiên bản 1.2
+> Cập nhật: 2026-05-16 · Phiên bản 2.0
 
 ---
 
@@ -17,7 +17,7 @@ Trường IEC cần một kênh để khuyến khích học sinh chia sẻ hành
 Triết lý cốt lõi:
 > *"Mỗi hành động tốt đều được ghi nhận — không bị lãng quên."*
 
-Mỗi khi học sinh đăng bài, bình luận hay nhận like, họ nhận được **Kindness Points (KP)** — điểm thưởng hiển thị công khai trên bảng xếp hạng toàn trường. Điểm số cao không mang lại phần thưởng vật chất, nhưng tạo ra **sự nhận diện cộng đồng** — điều có giá trị thực sự với học sinh THPT.
+Mỗi khi học sinh đăng bài, bình luận hay nhận like, họ nhận được **Kindness Points (KP)** — điểm thưởng hiển thị công khai trên bảng xếp hạng toàn trường.
 
 ### Concept thiết kế
 
@@ -26,14 +26,10 @@ Mỗi khi học sinh đăng bài, bình luận hay nhận like, họ nhận đư
 | Phong cách | Tươi sáng, vui nhộn, phù hợp học sinh THPT |
 | Màu chủ đạo | Xanh lá (`#22C55E`) — thân thiện, tự nhiên, tích cực |
 | Màu nhấn | Indigo (`#6B6FD8`) — buttons, active states |
-| Nền trang | `#F5F5F5` (xám nhạt), card nền trắng |
 | Font | Inter / Segoe UI |
-| Hình dạng | Bo tròn nhiều (pill buttons, card radius 12–16px) |
 | Ngôn ngữ | Tiếng Việt 100% |
 
 ### Hệ thống danh hiệu Kindness Points (Plant Growth)
-
-Lấy cảm hứng từ quá trình phát triển của cây — mỗi học sinh bắt đầu từ một hạt giống và lớn lên qua từng cột mốc điểm:
 
 | Điểm | Icon | Danh hiệu |
 |------|------|-----------|
@@ -49,362 +45,310 @@ Lấy cảm hứng từ quá trình phát triển của cây — mỗi học sin
 
 ## 2. Tech Stack & Kiến trúc
 
-### Công nghệ sử dụng
-
 | Tầng | Công nghệ | Lý do chọn |
 |------|-----------|------------|
 | UI | React 19 + Vite 6 | Nhanh, modern, hot reload tốt |
-| Global State | Zustand 5 | Nhẹ, không boilerplate như Redux |
-| Database | Firebase Firestore | Real-time, serverless, free tier đủ dùng |
-| Authentication | Firebase Auth | Email/pass + Google Sign-In, tự hash password |
-| Media Storage | Firebase Storage | Blaze plan — upload qua `uploadBytesResumable` SDK, hỗ trợ progress bar, Security Rules per-file |
-| Deploy | Firebase Hosting | CDN toàn cầu, HTTPS tự động, custom domain miễn phí |
-| Styling | CSS Modules | Scoped style, không cần Tailwind, tự build design system |
-| Routing | React Router v7 | Standard cho React SPA |
+| Global State | Zustand 5 | Nhẹ, không boilerplate |
+| Database | Firebase Firestore | Real-time, serverless |
+| Authentication | Firebase Auth | Email/pass + Google Sign-In |
+| Media Storage | Firebase Storage | Blaze plan, `uploadBytesResumable`, progress bar |
+| Deploy | Firebase Hosting | CDN toàn cầu, HTTPS, CI/CD qua GitHub Actions |
+| Styling | CSS Modules | Scoped style, design system tự build |
+| Routing | React Router v7 | Standard SPA |
 
-### Cấu trúc dữ liệu Firestore
+### Cấu trúc dữ liệu Firestore (đã cập nhật)
 
 ```
 users/{uid}
   displayName, email, photoURL, coverURL,
-  role: "student" | "teacher",
+  role: "student" | "teacher" | "pending_teacher" | "admin",
   grade, totalPoints, createdAt
 
 posts/{postId}
-  authorId, content, mediaUrl, mediaType,
-  likeCount, commentCount, createdAt
+  authorId, authorName, authorRole, authorGrade, authorPhotoURL,
+  content, mediaUrl, mediaType,
+  likeCount, commentCount, editedAt?, createdAt
   └── likes/{uid}          ← doc tồn tại = đã like
-  └── (comments là collection riêng)
 
 comments/{commentId}
-  postId, authorId, content, mediaUrl, mediaType, createdAt
+  postId, parentId?,         ← parentId cho reply (1 cấp)
+  authorId, authorName, authorRole, authorPhotoURL,
+  content, mediaUrl, mediaType,
+  likeCount, createdAt       ← likeCount cho comment like
+  └── likes/{uid}
 
 notifications/{uid}/items/{notifId}
   type: "like"|"comment", fromUid, fromName,
   fromPhotoURL, postId, postSnippet, read, createdAt
 
 config/app
-  teacherCode: "MGV-2526-..."    ← mã xác thực giáo viên
+  teacherCode: "MGV-2526-..."
 ```
 
 ---
 
-## 3. Danh sách tính năng (Use Cases) hiện tại
+## 3. Tính năng hiện tại — Trạng thái đầy đủ
 
-### Đã hoàn thành ✅
+### ✅ Đã hoàn thành & production-ready
 
-#### Auth (Xác thực)
-- **Đăng ký tài khoản** — email + mật khẩu, tự tạo user document trong Firestore
-- **Đăng nhập** — email/password
-- **Google Sign-In** — tích hợp OAuth, tự tạo profile nếu chưa có
-- **Quên mật khẩu** — gửi email reset qua Firebase Auth
-- **Đăng xuất**
-- **Route bảo vệ** — redirect về `/login` nếu chưa đăng nhập
+#### Auth
+- Đăng ký / đăng nhập email + password
+- Google Sign-In với onboarding chọn role
+- Quên mật khẩu (email reset)
+- Show/hide password toggle
+- Route bảo vệ — redirect `/login` nếu chưa đăng nhập
+- Luồng giáo viên chờ duyệt (`pending_teacher` → `/pending`)
 
-#### Feed (Trang chủ)
-- **Xem danh sách bài viết** — real-time với `onSnapshot`, mới nhất lên đầu
-- **Đăng bài viết** — text + ảnh/video (upload lên Firebase Storage)
-- **Like bài viết** — toggle like, cộng điểm `+2` cho tác giả
-- **Xoá bài viết** — chỉ tác giả hoặc giáo viên
-- **Mini leaderboard sidebar** — top 5 điểm cao nhất
-- **Cách kiếm điểm sidebar** — hiển thị bảng quy đổi điểm
+#### Feed & Bài viết
+- Xem feed real-time (`onSnapshot`), mới nhất lên đầu
+- Đăng bài text + ảnh/video (Firebase Storage, progress bar)
+- **Chỉnh sửa bài** — menu "···", modal editor, thay đổi/xoá media, tag "đã chỉnh sửa"
+- Like bài — toggle, cộng `+2` KP cho tác giả, optimistic update
+- Xoá bài — author / giáo viên / admin
+- **Chia sẻ bài** — Web Share API (native sheet mobile) hoặc copy link + toast "✅ Đã copy link!"
+- **Route `/post/:postId`** — mở bài trực tiếp từ link chia sẻ, real-time
 
-#### Bình luận
-- **Xem bình luận** — mở rộng/thu gọn dưới mỗi post
-- **Đăng bình luận** — text + ảnh/video, cộng điểm `+5`
-- **Xoá bình luận** — tác giả hoặc giáo viên
+#### Bình luận (đã thiết kế lại)
+- Xem / đăng bình luận (text), cộng `+5` KP
+- **Reply 1 cấp** — nút "Trả lời", @mention tự điền, thụt lề 36px
+- **Like comment** — toggle, subcollection `likes/{uid}`, optimistic update
+- **Layout kiểu Facebook** — bubble co theo nội dung, footer (timestamp · Trả lời · ❤️) nằm ngoài bubble
+- Xoá bình luận — author hoặc giáo viên
+- Phân trang "Xem thêm" (5 comment/trang)
+- **Rate limiting** — cooldown 8 giây giữa các lần gửi, countdown hiển thị trong input
 
 #### Hồ sơ (Profile)
-- **Xem hồ sơ cá nhân** — tại `/profile`
-- **Xem hồ sơ người khác** — tại `/profile/:uid`
-- **Chỉnh sửa hồ sơ** — tên hiển thị, lớp học, avatar, ảnh bìa
-- **Tab bài viết** — xem toàn bộ bài đã đăng
-- **Tab lịch sử điểm** — (dữ liệu mẫu, chờ tích hợp `pointHistory`)
-- **Tab huy hiệu** — (dữ liệu mẫu tĩnh)
-- **Thống kê** — tổng điểm, xếp hạng, số bài, lượt like
-- **Danh hiệu cây** — hiển thị tier dựa trên điểm (🌰→🌴)
+- Xem hồ sơ cá nhân (`/profile`) và người khác (`/profile/:uid`)
+- Chỉnh sửa: tên, lớp học, avatar, ảnh bìa
+- Tab bài viết, lịch sử điểm (placeholder), huy hiệu (placeholder)
+- Thống kê: tổng điểm, xếp hạng, danh hiệu cây
 
 #### Bảng xếp hạng (Leaderboard)
-- **Top 50 học sinh** — real-time `onSnapshot`, sắp xếp theo điểm
-- **Podium top 3** — hình ảnh bục 🥇🥈🥉
-- **Bảng đầy đủ** — progress bar tương đối, link đến profile
-- **Lọc theo lớp/khối** — client-side filter
-- **Tìm kiếm trong leaderboard** — client-side filter theo tên
-- **Hạng cá nhân** — hiển thị trong hero section
-- **Danh hiệu cây** — hiện tại tier dưới tên mỗi user
+- Top 200 học sinh real-time (`onSnapshot`)
+- Podium top 3 🥇🥈🥉
+- Lọc theo khối lớp, tìm kiếm theo tên
+- **Rank chính xác** — dùng count query thay vì giới hạn 50
 
 #### Tìm kiếm
-- **SearchDropdown** — mở từ nút trên Navbar, debounce 300ms
-- **Tìm đồng thời** — Promise.all: top 4 users + top 4 posts
-- **Điều hướng** — click user → profile; Enter/Xem tất cả → `/search?q=...`
-- **SearchPage** — trang kết quả đầy đủ, 2 tab (Học sinh / Bài viết)
+- SearchDropdown Navbar — debounce 300ms, top 4 users + top 4 posts
+- SearchPage `/search`:
+  - Tab **Người dùng** — filter vai trò (Học sinh / Giáo viên), tìm theo tên/lớp
+  - Tab **Bài viết** — filter thời gian (7 ngày / 30 ngày), sort (Mới nhất / Nhiều like)
+  - Click bài viết → mở PostDetailPage
 
-#### Thông báo (Notifications)
-- **Bell icon real-time** — badge số chưa đọc
-- **Dropdown 30 thông báo gần nhất** — like, comment
-- **Mark all read** — khi mở dropdown
-- **Tự gửi thông báo** — khi ai đó like hoặc comment bài của bạn (không tự thông báo cho mình)
+#### Thông báo
+- Bell icon real-time — badge đếm chưa đọc
+- Dropdown 30 thông báo gần nhất
+- **Click thông báo → nhảy thẳng đến bài viết** (`/post/:postId`)
+- Mark as read khi mở dropdown / "Đánh dấu đọc tất"
 
-#### Phân quyền Giáo viên
-- **Role system** — `student` / `teacher` trong Firestore
-- **Teacher delete** — giáo viên xoá bất kỳ post/comment vi phạm
-- **Firestore Rules** — bảo vệ server-side, `isTeacher()` dùng `get()` để check role
+#### Phân quyền & Admin
+- Role: `student` / `teacher` / `pending_teacher` / `admin`
+- Admin page: duyệt/từ chối giáo viên chờ
+- `approveTeacher()` **batch-update `authorRole`** trong toàn bộ posts ngay khi duyệt
+- Giáo viên xoá post/comment vi phạm
 
-#### Bảo mật
-- **Firestore Rules** — `totalPoints` chỉ cho phép increment đúng mức (+2, +5, +10, +20)
-- **ErrorBoundary** — bắt lỗi React toàn cục, hiện thông báo thân thiện
-- **File validation** — kiểm tra định dạng + dung lượng phía client trước khi upload
-
-### Chưa làm / Backlog ⏳
-
-| Tính năng | Ghi chú |
-|-----------|---------|
-| Show/Hide password toggle | Cần thêm vào LoginPage |
-| Đăng ký tài khoản giáo viên | Teacher code + toggle UI (plan đã có trong `PLAN_teacher-auth.md`) |
-| Google Sign-In → chọn role | Onboarding modal sau lần đầu đăng nhập Google |
-| Chia sẻ bài viết | Web Share API + copy link |
-| Facebook / Zalo Sign-In | Sau khi Google ổn định |
-| `pointHistory` thực tế | Thay dữ liệu mẫu bằng collection thật |
-| Huy hiệu thực tế | Tính toán dựa trên hành động thật |
-| Trang Admin | Duyệt giáo viên, thống kê toàn trường |
+#### Bảo mật & Hạ tầng
+- Firestore Rules — `totalPoints` chỉ cho phép increment đúng mức
+- Storage Rules — chỉ owner ghi vào path của mình
+- File validation — type + size phía client
+- ErrorBoundary — bắt lỗi React toàn cục
+- CI/CD GitHub Actions — push master → build → deploy production tự động
 
 ---
 
-## 4. Tiến độ dự án — Timeline từ đầu đến nay
+## 4. Timeline
 
 ```
-Sprint 0 — Khởi tạo
-├── Setup Vite + React 19 + CSS Modules
-├── Design system: tokens.css, globals.css
-├── Component primitives: Button, Input, Avatar, NavItem, Spinner
-├── Firebase init (Auth + Firestore)
-└── AppRouter, ProtectedRoute, Zustand stores
+Sprint 1-6 (đến 2026-04-29)
+  Auth, Feed, Profile, Leaderboard, Notifications, Search cơ bản,
+  Media Upload, Firestore/Storage Rules, CI/CD, GitHub
 
-Sprint 1 — Core Auth & Feed
-├── LoginPage (đăng nhập + đăng ký)
-├── FeedPage với PostCard
-├── PostModal (đăng bài)
-├── Tích điểm cơ bản (+10 đăng bài, +5 comment, +2 like)
-└── LeaderboardPage (cơ bản)
+Sprint 7 — P0/P1 Features (2026-05-16)
+  ├── Chia sẻ bài viết (Web Share API + clipboard + toast)
+  ├── Route /post/:postId + PostDetailPage
+  ├── Fix notification link → /post/:postId
+  ├── Chỉnh sửa bài (menu···, modal, edit media, tag "đã chỉnh sửa")
+  ├── Reply comment (parentId, thụt lề, @mention)
+  └── Advanced search (filter role, time, sort)
 
-Sprint 2 — Profile & Polish
-├── ProfilePage (tabs: posts, history, badges)
-├── EditProfileModal
-├── Fix layout avatar bị ảnh bìa đè
-├── CommentSection với like/comment count đồng bộ
-└── ForgotPassword flow
-
-Sprint 3 — Media & Security
-├── Thử Firebase Storage → phát hiện không có free tier trên Spark plan
-├── Di chuyển tạm sang Cloudinary (unsigned XHR upload, không cần backend)
-├── Avatar upload, Cover upload, Post media upload hoạt động
-├── ErrorBoundary toàn cục
-└── Firestore Security Rules (totalPoints lock, teacher delete)
-
-Sprint 4 — Social Features
-├── 2.1 Thông báo real-time (NotifBell + notification.service)
-├── 2.2 Avatar → Link điều hướng profile người khác
-├── 2.3 Search: SearchDropdown trên Navbar + SearchPage tại /search
-├── 2.4 Teacher role: xoá post/comment vi phạm
-└── Kindness Points title system (🌰 → 🌴)
-
-Sprint 5 — Firebase Upgrade & Deploy Setup
-├── Nâng cấp Firebase lên Blaze plan
-├── Di chuyển Storage: Cloudinary → Firebase Storage (uploadBytesResumable)
-├── Thêm storage.rules + cập nhật firebase.json
-├── Cập nhật firebase.js: thêm storageBucket + export storage
-├── Firebase Hosting cấu hình xong (.firebaserc, firebase.json)
-└── Git init + .gitignore (bảo vệ .env, admin SDK key, design assets)
-
-Sprint 6 — GitHub & CI/CD
-├── Push toàn bộ project lên GitHub (87 files)
-├── Fix bảo mật seed script: đọc admin key path + password từ env thay vì hardcode
-├── Tạo .env.example — template cho thành viên mới clone repo
-├── Tạo README.md — hướng dẫn cài đặt, git workflow, CI/CD cho toàn nhóm
-├── Tạo .github/workflows/deploy.yml — GitHub Actions tự động deploy:
-│   ├── Push lên master → deploy production (live channel)
-│   └── Mở PR vào master → deploy preview URL để review
-└── Xác nhận: chỉ cần 1 GitHub Secret (FIREBASE_SERVICE_ACCOUNT); VITE_* inline trong workflow
+Sprint 8 — UX & Bug Fixes (2026-05-16)
+  ├── Redesign comment layout kiểu Facebook
+  ├── Like comment (subcollection likes, optimistic update)
+  ├── Fix reply layout (commentBlock ngoài flex row)
+  ├── [B1+B2] approveTeacher batch-update authorRole posts
+  ├── [B3] getUserRank count query, LEADERBOARD_SIZE → 200
+  └── [B4] Comment rate limiting cooldown 8s
 ```
-
-### Trạng thái hiện tại
-
-| Giai đoạn | Trạng thái |
-|-----------|-----------|
-| Phase 1 — Core features | ✅ Hoàn thành |
-| Phase 2 — Social features | ✅ 4/6 tính năng xong |
-| Phase 3 — Deploy | ✅ CI/CD tự động qua GitHub Actions — production live tại `kindness-school.web.app` |
 
 ---
 
-## 5. Kế hoạch Deploy
+## 5. Đánh giá sẵn sàng — Ship hay Pilot trước?
 
-### Checklist trước khi deploy
+### Tổng kết tình trạng hiện tại
 
-**Kỹ thuật:**
-- [x] `npm run build` sạch, không warning/error
-- [ ] Google Sign-In hoạt động với domain thật (thêm vào Firebase Console → Authentication → Authorized domains)
-- [x] Firebase Storage đã bật, `storage.rules` đã deploy
-- [x] Firestore + Storage Rules deploy: `firebase deploy --only firestore,storage`
-- [x] Tất cả env vars `VITE_FIREBASE_*` được set — inline trong GitHub Actions workflow
-- [x] CI/CD tự động qua GitHub Actions (`.github/workflows/deploy.yml`)
-- [ ] Test trên điện thoại Android/iOS 375px
+| Hạng mục | Trạng thái | Ghi chú |
+|----------|-----------|---------|
+| Core features | ✅ Đầy đủ | Auth, Feed, Like, Comment, Profile, Leaderboard |
+| Social features | ✅ Đầy đủ | Share, Edit, Reply, Search nâng cao, Notification |
+| Mobile-first | ✅ | Thiết kế 375px trước |
+| CI/CD | ✅ | Tự động build + deploy qua GitHub Actions |
+| Known bugs | ✅ Đã fix | B1–B4 đã resolve |
+| Bảo mật | ⚠️ Cơ bản | Firestore Rules đủ dùng, điểm cộng client-side |
+| Content moderation | ⚠️ Thủ công | Giáo viên xoá thủ công, chưa có filter tự động |
+| Email verification | ❌ Chưa có | Ai cũng có thể đăng ký bằng email bất kỳ |
+| Badges thực tế | ❌ Chưa có | Đang hardcode, P2 backlog |
+| Push notification | ❌ Chưa có | Chỉ in-app bell icon |
 
-**Nội dung:**
-- [ ] Xoá seed data / dữ liệu test nếu có
-- [ ] Tạo tài khoản giáo viên thật trước khi mở cho học sinh
+---
+
+### Khuyến nghị: Pilot 2 tuần trước khi ship toàn trường
+
+**Lý do không nên ship thẳng ngay:**
+
+1. **Email không xác thực** — học sinh có thể đăng ký bằng email giả hoặc email của người khác. Cần ít nhất 1 tuần kiểm soát danh sách tài khoản trong môi trường nhỏ trước.
+2. **Nội dung chưa được kiểm duyệt tự động** — Môi trường học đường cần giáo viên làm quen với việc xoá bài vi phạm trước khi có 500 học sinh đồng thời.
+3. **Điểm cộng client-side** — Vẫn có thể bị can thiệp qua DevTools. Chưa đủ nghiêm trọng để block launch, nhưng nên quan sát ở quy mô nhỏ trước.
+4. **Chưa test thực tế trên thiết bị học sinh** — Các thiết bị Android giá rẻ, iOS cũ, màn hình nhỏ có thể có render khác.
+
+---
+
+### Kế hoạch 3 giai đoạn
+
+#### Giai đoạn 1 — Pilot nội bộ (Tuần 1–2)
+> **Quy mô:** 1 lớp thí điểm (~35 học sinh) + 2–3 giáo viên phụ trách
+
+**Checklist trước khi mở:**
+- [ ] Tạo tài khoản admin (1 người)
+- [ ] Tạo tài khoản giáo viên thật (approve qua AdminPage)
 - [ ] Đặt `teacherCode` trong Firestore `config/app`
+- [ ] Xoá toàn bộ dữ liệu test (post, comment, user seed)
+- [ ] Test Google Sign-In với domain production (`kindness-school.web.app`)
+- [ ] Test upload ảnh/video trên điện thoại Android + iOS
+- [ ] Thông báo học sinh về quy tắc sử dụng
 
-### Quy trình deploy lên Firebase Hosting
+**Thu thập trong tuần pilot:**
+- Bài viết spam/không phù hợp xuất hiện không?
+- Điểm bất thường (ai đó farm comment liên tục)?
+- Lỗi UI trên thiết bị thực tế?
+- Tốc độ load trên mạng trường (WiFi yếu)?
 
-**1. Cài Firebase CLI (một lần duy nhất):**
-```bash
-npm install -g firebase-tools
-firebase login
-firebase init hosting   # chọn dist/ làm public folder, SPA: yes
-```
+#### Giai đoạn 2 — Beta toàn trường (Tuần 3–4)
+> **Quy mô:** Toàn bộ học sinh IEC
 
-**2. Mỗi lần deploy:**
-```bash
-npm run build
-firebase deploy --only hosting
-```
+Mở rộng sau khi pilot ổn định. Giáo viên đã quen với việc kiểm duyệt nội dung.
 
-URL sau khi deploy: `https://[project-id].web.app`
+**Nâng cấp ưu tiên sau pilot:**
+- Xác thực email khi đăng ký (Firebase Auth email verification — 1 ngày làm)
+- Giới hạn đăng ký chỉ email trường (`@iec.edu.vn`) nếu trường có
+- Thông báo push (Firebase Cloud Messaging) — tùy chọn
 
-### Tùy chọn domain
-
-| Lựa chọn | Chi phí | Ghi chú |
-|----------|---------|---------|
-| `[project-id].web.app` | Miễn phí | Firebase Hosting mặc định, dùng ngay |
-| `kindness.iec.edu.vn` | Miễn phí (nhờ IT trường) | CNAME trỏ về Firebase Hosting |
-| `kindnessiec.site` | ~200k/năm | Mua domain thương mại |
+#### Giai đoạn 3 — Full Launch
+> Production ổn định, bàn giao cho trường tự vận hành
 
 ---
 
-## 6. Firebase Blaze Plan — Đã nâng cấp ✅
+### Nếu bắt buộc phải ship thẳng
 
-### Trạng thái
+Nếu không thể pilot trước (deadline từ nhà trường), checklist tối thiểu:
 
-Dự án đã được nâng cấp lên **Firebase Blaze (pay-as-you-go)**. Tất cả dịch vụ Firebase hiện hoạt động trong cùng một nền tảng:
+```
+✅ Đã có sẵn — không cần làm gì thêm:
+   - Core features hoạt động đầy đủ
+   - Mobile-first layout
+   - CI/CD tự động
+   - Bug B1-B4 đã fix
 
-| Dịch vụ | Trạng thái | Ghi chú |
-|---------|-----------|---------|
-| Firebase Auth | ✅ Hoạt động | Email/pass + Google Sign-In |
-| Firebase Firestore | ✅ Hoạt động | Database chính, real-time |
-| Firebase Storage | ✅ Hoạt động | Lưu avatar, ảnh bìa, media bài viết |
-| Firebase Hosting | ✅ Cấu hình xong | Sẵn sàng deploy |
+⚠️ Phải làm trước khi mở (1–2 giờ):
+   1. Xoá data test trong Firestore
+   2. Tạo tài khoản admin + giáo viên thật
+   3. Test Google Sign-In trên domain production
+   4. Dặn ít nhất 1 giáo viên online kiểm duyệt nội dung ngày đầu
 
-### Ước tính chi phí thực tế
+📋 Chấp nhận rủi ro có thể xử lý sau:
+   - Email giả → xoá tài khoản vi phạm thủ công qua Firebase Console
+   - Điểm spam → reset totalPoints qua Firebase Console nếu phát hiện
+   - Bugs nhỏ → fix và deploy trong ngày (CI/CD sẵn sàng)
+```
+
+---
+
+## 6. Firebase & Hạ tầng
+
+### Ước tính chi phí
 
 Với quy mô ~1.000 học sinh, ~500 bài viết/tháng:
 
 | Dịch vụ | Ước tính/tháng | Chi phí |
 |---------|---------------|---------|
-| Firestore reads/writes | ~200.000 reads, ~50.000 writes | Miễn phí (trong free quota) |
-| Storage | ~2 GB ảnh/video | Miễn phí (5 GB free) |
-| Hosting | ~1 GB bandwidth | Miễn phí (10 GB free) |
+| Firestore reads/writes | ~300.000 reads, ~80.000 writes | Miễn phí (quota: 50k reads/ngày) |
+| Storage | ~5 GB ảnh/video tích lũy | Miễn phí (5 GB free) |
+| Hosting bandwidth | ~2 GB | Miễn phí (10 GB free) |
 | **Tổng** | | **~$0/tháng** |
 
-> Blaze chỉ tính tiền khi vượt free quota. Với quy mô trường IEC, dự kiến nằm trong giới hạn miễn phí.
+> ⚠️ Nếu học sinh upload nhiều video: Storage có thể vượt 5GB sau 2–3 tháng (~$0.026/GB thêm). Khuyến nghị giới hạn video 30 giây hoặc chỉ cho phép ảnh trong giai đoạn đầu.
 
-### Bước tiếp theo — Cloud Functions (tùy chọn tương lai)
-
-Hiện tại điểm thưởng được cộng client-side (có thể bị can thiệp qua DevTools). Khi cần bảo mật cao hơn, có thể thêm Cloud Functions:
+### CI/CD Pipeline
 
 ```
-onPostCreated   → +10 điểm cho tác giả (server-side)
-onCommentCreated → +5 điểm
-onLikeAdded     → +2 điểm cho tác giả bài
+Push lên master
+  → GitHub Actions: npm ci → npm run build → firebase deploy
+    → Production live tại kindness-school.web.app
+      (tự động, không cần thao tác thủ công)
 ```
-
-Đây là nâng cấp bảo mật, không phải yêu cầu bắt buộc để launch.
 
 ---
 
-## 7. CI/CD — GitHub Actions
+## 7. Backlog còn lại (P2)
 
-### Quy trình tự động
-
-```
-Developer push lên branch feature/...
-  → Mở Pull Request vào master
-    → GitHub Actions chạy: npm ci → npm run build → deploy preview URL
-      → Review + approve
-        → Merge vào master
-          → GitHub Actions tự deploy production: kindness-school.web.app
-```
-
-### Cấu hình (`.github/workflows/deploy.yml`)
-
-| Sự kiện | Kết quả |
-|---------|---------|
-| Push lên `master` | Deploy thẳng production (live channel) |
-| Mở PR vào `master` | Deploy preview URL tạm thời để review |
-
-### Secret duy nhất cần thiết
-
-Chỉ cần 1 GitHub Secret tại `repo → Settings → Secrets and variables → Actions`:
-
-| Secret | Nội dung |
-|--------|---------|
-| `FIREBASE_SERVICE_ACCOUNT` | Toàn bộ nội dung file JSON từ Firebase Console → Project Settings → Service accounts → Generate new private key |
-
-> `VITE_FIREBASE_*` không phải secret thật — được nhúng thẳng vào JS bundle, ai vào website cũng thấy. Security thực sự đến từ Firestore/Storage Rules. Vì vậy các giá trị này được inline trong workflow file, không cần lưu thành GitHub Secret.
-
-### Cập nhật Service Account
-
-Nếu cần đổi quyền quản trị Firebase: chỉ cần cập nhật giá trị `FIREBASE_SERVICE_ACCOUNT` trong GitHub Secrets — pipeline tự dùng key mới cho lần deploy tiếp theo.
+| Tính năng | Mức độ | Ghi chú |
+|-----------|--------|---------|
+| Xác thực email khi đăng ký | Cao | Ngăn email giả — 1 ngày làm |
+| Huy hiệu tự động (dựa trên data thật) | Trung bình | Cần `pointHistory` collection |
+| Streak điểm danh | Thấp | +5 KP/ngày login |
+| Leaderboard theo tuần/tháng | Thấp | Cần Cloud Functions reset định kỳ |
+| Push notification | Thấp | Firebase Cloud Messaging |
+| Điểm thưởng server-side | Thấp | Cloud Functions — chống hack DevTools |
+| Giới hạn đăng ký theo email domain | Trung bình | Nếu trường có `@iec.edu.vn` |
 
 ---
 
-## 8. Thông tin kỹ thuật cho thành viên mới
+## 8. Thông tin cho developer tiếp theo
 
-### Chạy project local
+### Chạy local
 
 ```bash
-git clone [repo-url]
+git clone https://github.com/VongoctriZ/IEC-Kindness-School
 cd Web-project
 npm install
-
-# Tạo file .env từ template (KHÔNG commit .env lên git)
-cp .env.example .env
-# Mở .env và điền các giá trị VITE_FIREBASE_* từ Firebase Console
-
-npm run dev   # → http://localhost:5173
+cp .env.example .env   # điền VITE_FIREBASE_* từ Firebase Console
+npm run dev            # http://localhost:5173
 ```
 
-**Deploy lên Firebase Hosting:**
-```bash
-npm run build
-firebase deploy          # deploy hosting + firestore rules + storage rules
-firebase deploy --only hosting   # chỉ deploy app
-```
-
-### Cấu trúc thư mục chính
+### Cấu trúc thư mục
 
 ```
 src/
-├── components/     # UI dùng chung (Avatar, Button, PostCard, Navbar...)
-├── features/       # Tính năng theo trang (feed, auth, profile, ranking, search, notifications)
-├── services/       # Giao tiếp với Firebase (Auth, Firestore, Storage)
-├── store/          # Zustand stores (useAuthStore)
+├── components/     # Button, Avatar, PostCard, Navbar, Modal, CommentSection...
+├── features/       # auth, feed, profile, ranking, search, notifications, post, admin
+├── services/       # firebase.js, auth/post/user/storage/notification/search.service.js
+├── store/          # useAuthStore, usePostStore, usePointStore (Zustand)
 ├── mvc/
-│   ├── controllers/   # Custom hooks xử lý logic (useFeedController, usePointsController)
-│   └── views/         # Layout wrappers (MainLayout, AuthLayout)
-├── routes/         # AppRouter, ProtectedRoute
-├── lib/            # utils.js (getInitials, formatRelativeTime, getKindnessTitle...)
-└── styles/         # tokens.css (CSS variables toàn dự án)
+│   ├── controllers/   # useFeedController, usePointsController
+│   └── views/         # MainLayout, AuthLayout
+├── routes/         # AppRouter.jsx, ProtectedRoute.jsx
+├── lib/            # constants.js, utils.js
+└── styles/         # tokens.css, globals.css, animations.css
 ```
 
-### Quy tắc code quan trọng
+### Quy tắc code
 
-- **CSS Modules** — mỗi component có file `.module.css` riêng, dùng CSS vars từ `tokens.css`
-- **Không hardcode màu** — luôn dùng `var(--color-*)`, `var(--r-*)`, `var(--text-*)`
-- **Không comment thừa** — chỉ comment khi lý do không tự hiển nhiên từ code
+- **CSS Modules** — dùng CSS vars từ `tokens.css`, không hardcode màu
+- **Mobile-first** — 375px trước, `min-width` media query để mở rộng
+- **Không comment thừa** — chỉ khi WHY không tự hiển nhiên
 - **Import order**: React/lib → store/services → components → CSS
-- **Mobile-first**: viết styles 375px trước, mở rộng bằng `min-width` media query
 
 ---
 
-*File được tạo 2026-04-28, cập nhật lần cuối 2026-04-29 (Sprint 6 — GitHub + CI/CD GitHub Actions).*
+*v1.0: 2026-04-28 — Sprint 6 (GitHub + CI/CD)*
+*v2.0: 2026-05-16 — Sprint 7+8 (P0/P1 features, comment redesign, bug fixes B1–B4)*
