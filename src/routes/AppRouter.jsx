@@ -6,6 +6,7 @@ import LoginPage       from '../features/auth/LoginPage'
 import PendingPage     from '../features/auth/PendingPage'
 import AdminPage       from '../features/admin/AdminPage'
 import FeedPage        from '../features/feed/FeedPage'
+import PostDetailPage  from '../features/post/PostDetailPage'
 import LeaderboardPage from '../features/ranking/LeaderboardPage'
 import ProfilePage     from '../features/profile/ProfilePage'
 import SearchPage      from '../features/search/SearchPage'
@@ -55,6 +56,7 @@ export default function AppRouter() {
           <Route path="search"       element={<SearchPage />} />
           <Route path="profile"      element={<ProfilePage />} />
           <Route path="profile/:uid" element={<ProfilePage />} />
+          <Route path="post/:postId" element={<PostDetailPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -59,7 +59,7 @@ export default function NotifBell() {
               {notifs.map(n => (
                 <Link
                   key={n.id}
-                  to={`/`}
+                  to={n.postId ? `/post/${n.postId}` : '/'}
                   className={`${styles.item} ${!n.read ? styles.unread : ''}`}
                   onClick={() => setOpen(false)}
                 >

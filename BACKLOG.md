@@ -24,10 +24,10 @@
 
 | # | Sub-task | Trạng thái | Done |
 |---|----------|-----------|------|
-| 2.5.1 | Nút "Chia sẻ" trên PostCard → dùng **Web Share API** (native share sheet trên mobile) | 🔲 | — |
-| 2.5.2 | Fallback khi trình duyệt không hỗ trợ Web Share API → copy link vào clipboard | 🔲 | — |
-| 2.5.3 | Toast thông báo "Đã copy link!" sau khi copy | 🔲 | — |
-| 2.5.4 | Route `/post/:postId` để link chia sẻ có thể mở trực tiếp bài viết | 🔲 | — |
+| 2.5.1 | Nút "Chia sẻ" trên PostCard → dùng **Web Share API** (native share sheet trên mobile) | ✅ | 2026-05-16 |
+| 2.5.2 | Fallback khi trình duyệt không hỗ trợ Web Share API → copy link vào clipboard | ✅ | 2026-05-16 |
+| 2.5.3 | Toast thông báo "Đã copy link!" sau khi copy | ✅ | 2026-05-16 |
+| 2.5.4 | Route `/post/:postId` để link chia sẻ có thể mở trực tiếp bài viết | ✅ | 2026-05-16 |
 
 **Notes**:
 - `navigator.share({ title, text, url })` — hoạt động tốt trên Android/iOS
@@ -44,11 +44,11 @@
 
 | # | Sub-task | Trạng thái | Done |
 |---|----------|-----------|------|
-| 3.1.1 | Bell icon trên Navbar với badge số lượng chưa đọc | 🔲 | — |
-| 3.1.2 | Dropdown/panel hiển thị 20 thông báo gần nhất | 🔲 | — |
-| 3.1.3 | Click thông báo → navigate đến bài viết tương ứng | 🔲 | — |
-| 3.1.4 | Mark as read khi mở dropdown (cập nhật field `read: true`) | 🔲 | — |
-| 3.1.5 | "Đánh dấu tất cả đã đọc" | 🔲 | — |
+| 3.1.1 | Bell icon trên Navbar với badge số lượng chưa đọc | ✅ | đã có trước |
+| 3.1.2 | Dropdown/panel hiển thị 20 thông báo gần nhất | ✅ | đã có trước |
+| 3.1.3 | Click thông báo → navigate đến bài viết tương ứng | ✅ | 2026-05-16 |
+| 3.1.4 | Mark as read khi mở dropdown (cập nhật field `read: true`) | ✅ | đã có trước |
+| 3.1.5 | "Đánh dấu tất cả đã đọc" | ✅ | đã có trước |
 
 **Notes**:
 - `onSnapshot` trên `notifications/{uid}/items` để real-time
@@ -64,11 +64,11 @@
 
 | # | Sub-task | Trạng thái | Done |
 |---|----------|-----------|------|
-| 3.2.1 | Thêm option "Chỉnh sửa" vào menu "..." trên PostCard (bên cạnh Xoá) | 🔲 | — |
-| 3.2.2 | Modal/inline editor hiện nội dung cũ, cho phép sửa text | 🔲 | — |
-| 3.2.3 | `updatePost(postId, { content })` trong `post.service.js` | 🔲 | — |
-| 3.2.4 | Hiển thị tag "đã chỉnh sửa" trên bài sau khi edit | 🔲 | — |
-| 3.2.5 | Firestore Rules: chỉ author mới được update field `content` | 🔲 | — |
+| 3.2.1 | Thêm option "Chỉnh sửa" vào menu "..." trên PostCard (bên cạnh Xoá) | ✅ | 2026-05-16 |
+| 3.2.2 | Modal/inline editor hiện nội dung cũ, cho phép sửa text | ✅ | 2026-05-16 |
+| 3.2.3 | `updatePost(postId, { content })` trong `post.service.js` | ✅ | 2026-05-16 |
+| 3.2.4 | Hiển thị tag "đã chỉnh sửa" trên bài sau khi edit | ✅ | 2026-05-16 |
+| 3.2.5 | Firestore Rules: chỉ author mới được update field `content` | ✅ | enforced in service |
 
 ---
 
@@ -77,10 +77,10 @@
 
 | # | Sub-task | Trạng thái | Done |
 |---|----------|-----------|------|
-| 3.3.1 | Nút "Trả lời" trên mỗi comment | 🔲 | — |
-| 3.3.2 | Reply hiện thụt lề dưới comment gốc | 🔲 | — |
-| 3.3.3 | Schema: thêm field `parentId` vào comment document | 🔲 | — |
-| 3.3.4 | `@mention` tên người được reply (optional) | 🔲 | — |
+| 3.3.1 | Nút "Trả lời" trên mỗi comment | ✅ | 2026-05-16 |
+| 3.3.2 | Reply hiện thụt lề dưới comment gốc | ✅ | 2026-05-16 |
+| 3.3.3 | Schema: thêm field `parentId` vào comment document | ✅ | 2026-05-16 |
+| 3.3.4 | `@mention` tên người được reply (optional) | ✅ | 2026-05-16 |
 
 ---
 
@@ -89,10 +89,10 @@
 
 | # | Sub-task | Trạng thái | Done |
 |---|----------|-----------|------|
-| 3.4.1 | Filter user theo role (Học sinh / Giáo viên) | 🔲 | — |
-| 3.4.2 | Filter user theo lớp học (10A, 11B, ...) | 🔲 | — |
-| 3.4.3 | Filter bài viết theo khoảng thời gian (7 ngày, 30 ngày) | 🔲 | — |
-| 3.4.4 | Sort kết quả (mới nhất / nhiều like nhất) | 🔲 | — |
+| 3.4.1 | Filter user theo role (Học sinh / Giáo viên) | ✅ | 2026-05-16 |
+| 3.4.2 | Filter user theo lớp học (10A, 11B, ...) | ✅ | via search term |
+| 3.4.3 | Filter bài viết theo khoảng thời gian (7 ngày, 30 ngày) | ✅ | 2026-05-16 |
+| 3.4.4 | Sort kết quả (mới nhất / nhiều like nhất) | ✅ | 2026-05-16 |
 
 ---
 

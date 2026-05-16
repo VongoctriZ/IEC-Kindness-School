@@ -2,6 +2,7 @@
  * @typedef {Object} Comment
  * @property {string}  id
  * @property {string}  postId
+ * @property {string|null} parentId
  * @property {string}  authorId
  * @property {string}  authorName
  * @property {'student'|'teacher'} authorRole
@@ -12,9 +13,10 @@
  * @property {import('firebase/firestore').Timestamp} createdAt
  */
 
-export function buildCommentDoc(postId, uid, profile, content, mediaUrl = null, mediaType = null) {
+export function buildCommentDoc(postId, uid, profile, content, parentId = null, mediaUrl = null, mediaType = null) {
   return {
     postId,
+    parentId,
     authorId:       uid,
     authorName:     profile.displayName,
     authorRole:     profile.role,
