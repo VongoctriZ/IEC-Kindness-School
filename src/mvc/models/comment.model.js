@@ -10,6 +10,7 @@
  * @property {string}  content
  * @property {string|null} mediaUrl
  * @property {'image'|'video'|null} mediaType
+ * @property {number}  likeCount
  * @property {import('firebase/firestore').Timestamp} createdAt
  */
 
@@ -24,5 +25,6 @@ export function buildCommentDoc(postId, uid, profile, content, parentId = null, 
     content,
     mediaUrl,
     mediaType,
+    likeCount: 0,
   }
 }

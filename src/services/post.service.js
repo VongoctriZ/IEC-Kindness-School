@@ -1,5 +1,5 @@
 import {
-  collection, addDoc, doc, getDoc, updateDoc, deleteDoc,
+  collection, addDoc, setDoc, doc, getDoc, updateDoc, deleteDoc,
   query, orderBy, limit, where,
   onSnapshot, serverTimestamp, increment, runTransaction,
 } from 'firebase/firestore'
@@ -117,6 +117,26 @@ export async function deletePost(postId, uid) {
 export async function deleteComment(commentId, postId) {
   await deleteDoc(doc(db, 'comments', commentId))
   await updateDoc(doc(db, 'posts', postId), { commentCount: increment(-1) })
+}
+
+export async function isCommentLikedByUser(commentId, uid) {
+  const snap = await getDoc(doc(db, 'comments', commentId, 'likes', uid))
+  return snap.exists()
+}
+
+export async function toggleCommentLike(commentId, uid) {
+  const likeRef    = doc(db, 'comments', commentId, 'likes', uid)
+  const likeSnap   = await getDoc(likeRef)
+  const commentRef = doc(db, 'comments', commentId)
+  if (likeSnap.exists()) {
+    await deleteDoc(likeRef)
+    await updateDoc(commentRef, { likeCount: increment(-1) })
+    return false
+  } else {
+    await setDoc(likeRef, { uid, createdAt: serverTimestamp() })
+    await updateDoc(commentRef, { likeCount: increment(1) })
+    return true
+  }
 }
 
 export async function addComment(postId, uid, profile, content, parentId = null) {
