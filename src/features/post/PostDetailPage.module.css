@@ -1,0 +1,48 @@
+.page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+}
+
+.back { margin-bottom: 16px; }
+
+.backBtn {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  background: var(--color-primary-light);
+  transition: background 0.15s;
+}
+.backBtn:hover { background: #DDDEFF; }
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.notFound {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-text-2);
+  font-size: var(--text-sm);
+}
+.notFoundIco { font-size: 48px; }
+
+.backHome {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  padding: 8px 20px;
+  border-radius: var(--r-pill);
+  background: var(--color-primary-light);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.backHome:hover { background: #DDDEFF; }
