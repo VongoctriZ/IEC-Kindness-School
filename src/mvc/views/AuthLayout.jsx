@@ -17,7 +17,7 @@ export default function AuthLayout() {
       {/* Left branding panel */}
       <div className={styles.left}>
         <div className={styles.leftContent}>
-          <a href="/" className={styles.brand}>🌱 IEC — Kindness School</a>
+          <a href="/" className={styles.brand}>🌱 Kindness School</a>
           <h1 className={styles.headline}>
             Chào mừng trở lại,<br />
             <span className={styles.highlight}>ngôi sao tử tế!</span>
@@ -41,7 +41,7 @@ export default function AuthLayout() {
             ))}
           </div>
         </div>
-        <footer className={styles.leftFoot}>© 2026 IEC-KindnessSchool · Powered by Firebase</footer>
+        <footer className={styles.leftFoot}>© 2026 Kindness School · Powered by Firebase</footer>
       </div>
 
       {/* Right form panel */}

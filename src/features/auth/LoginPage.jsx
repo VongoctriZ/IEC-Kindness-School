@@ -78,7 +78,7 @@ export default function LoginPage() {
           <h2 className={styles.title}>Đăng nhập</h2>
           <p className={styles.sub}>Chào mừng bạn quay lại! 👋</p>
 
-          <Input label="Email trường học" type="email" placeholder="ten@iec.edu.vn"
+          <Input label="Email" type="email" placeholder="ten@email.com"
             value={email} onChange={e => setEmail(e.target.value)} />
           <div style={{ marginTop: 14 }}>
             <Input
@@ -131,7 +131,7 @@ export default function LoginPage() {
               const ok = await resetPassword(forgotEmail)
               if (ok) setForgotSuccess(true)
             }}>
-              <Input label="Email trường học" type="email" placeholder="ten@iec.edu.vn"
+              <Input label="Email" type="email" placeholder="ten@email.com"
                 value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} />
               <Button type="submit" className={styles.submitBtn} disabled={loading || !forgotEmail.trim()}>
                 {loading ? 'Đang gửi...' : 'Gửi link đặt lại mật khẩu →'}
@@ -178,7 +178,7 @@ export default function LoginPage() {
           <Input label="Họ và tên" placeholder="Nguyễn Văn A"
             value={rName} onChange={e => setRName(e.target.value)} />
           <div style={{ marginTop: 14 }}>
-            <Input label="Email trường học" type="email" placeholder="ten@iec.edu.vn"
+            <Input label="Email" type="email" placeholder="ten@email.com"
               value={rEmail} onChange={e => setREmail(e.target.value)} />
           </div>
           {rRole === ROLES.STUDENT && (

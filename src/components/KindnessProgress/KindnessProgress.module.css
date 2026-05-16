@@ -1,0 +1,159 @@
+/* ── Compact (sidebar) ── */
+.compact {
+  padding: 10px 0 2px;
+}
+
+.compactHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.compactLevel {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.compactPts {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #92400E;
+}
+
+/* ── Shared bar ── */
+.bar {
+  height: 7px;
+  background: #E5E7EB;
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, #4ade80, #16a34a);
+  transition: width 0.6s ease;
+}
+
+.hint {
+  font-size: 0.68rem;
+  color: var(--color-text-3);
+  margin-top: 5px;
+  text-align: center;
+}
+
+/* ── Full (profile) ── */
+.wrap {
+  background: var(--color-surface);
+  border-radius: var(--r-lg);
+  padding: 16px 20px;
+  box-shadow: var(--shadow);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.currentLevel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ico {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.levelName {
+  font-size: var(--text-base);
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.levelSub {
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
+  margin-top: 1px;
+}
+
+.nextLevel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.55;
+}
+
+.nextName {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-2);
+  text-align: right;
+}
+
+.nextIco {
+  font-size: 1.4rem;
+}
+
+.barWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.barTrack {
+  flex: 1;
+  height: 10px;
+  background: #E5E7EB;
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+
+.fillFull {
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, #86efac, #22c55e, #16a34a);
+  transition: width 0.7s ease;
+}
+
+.pct {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #16a34a;
+  min-width: 34px;
+  text-align: right;
+}
+
+.sub {
+  font-size: var(--text-xs);
+  color: var(--color-text-2);
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+/* Level dots */
+.allLevels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dot {
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--color-text-3);
+  transition: transform 0.2s;
+}
+
+.dotDone {
+  color: inherit;
+  filter: drop-shadow(0 1px 3px rgba(34,197,94,.4));
+}
+
+.dot:hover { transform: scale(1.25); }

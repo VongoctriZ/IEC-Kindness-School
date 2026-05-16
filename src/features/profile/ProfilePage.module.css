@@ -79,6 +79,9 @@
   padding: 2px 8px; border-radius: var(--r-pill);
 }
 
+/* Kindness progress */
+.progressWrap { max-width: 900px; margin: 0 auto 16px; padding: 0 24px; }
+
 /* Tabs */
 .tabsWrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
 .tabs { display: flex; border-bottom: 2px solid #E5E7EB; margin-bottom: 20px; }

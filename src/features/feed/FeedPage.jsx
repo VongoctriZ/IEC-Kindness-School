@@ -4,9 +4,10 @@ import { Link }   from 'react-router-dom'
 import { useFeedController }  from '../../mvc/controllers/useFeedController'
 import { useLeaderboard }     from '../../mvc/controllers/usePointsController'
 import useAuthStore   from '../../store/useAuthStore'
-import PostCard       from '../../components/PostCard/PostCard'
-import Avatar         from '../../components/Avatar/Avatar'
-import Spinner        from '../../components/Spinner/Spinner'
+import PostCard          from '../../components/PostCard/PostCard'
+import Avatar            from '../../components/Avatar/Avatar'
+import Spinner           from '../../components/Spinner/Spinner'
+import KindnessProgress  from '../../components/KindnessProgress/KindnessProgress'
 import styles from './FeedPage.module.css'
 
 const POINTS_RULES = [
@@ -85,9 +86,8 @@ export default function FeedPage() {
                 <div className={styles.ucStat}><div className={styles.ucN}>28</div><div className={styles.ucL}>Bài viết</div></div>
                 <div className={styles.ucStat}><div className={styles.ucN}>112</div><div className={styles.ucL}>Likes nhận</div></div>
               </div>
-              <div className={styles.ucPoints}>
-                <div className={styles.ucPtsN}>⭐ {profile.totalPoints ?? 0}</div>
-                <div className={styles.ucPtsL}>Kindness Points</div>
+              <div className={styles.ucProgressWrap}>
+                <KindnessProgress points={profile.totalPoints ?? 0} compact />
               </div>
             </div>
           )}

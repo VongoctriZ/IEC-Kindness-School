@@ -35,7 +35,7 @@ export function validateFile(file, { MAX_FILE_SIZE, ACCEPTED_IMAGE_TYPES, ACCEPT
   return ACCEPTED_IMAGE_TYPES.includes(file.type) ? 'image' : 'video'
 }
 
-const KINDNESS_TITLES = [
+export const KINDNESS_TITLES = [
   { min: 0,   icon: '🌰', title: 'Hạt giống'       },
   { min: 20,  icon: '🌱', title: 'Mầm non'          },
   { min: 50,  icon: '🌿', title: 'Chồi non'         },

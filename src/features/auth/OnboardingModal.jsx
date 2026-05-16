@@ -33,7 +33,7 @@ export default function OnboardingModal() {
     <div className={styles.backdrop}>
       <div className={styles.modal}>
         <div className={styles.icon}>🌱</div>
-        <h2 className={styles.title}>Chào mừng đến IEC Kindness!</h2>
+        <h2 className={styles.title}>Chào mừng đến Kindness School!</h2>
         <p className={styles.sub}>Cho chúng tôi biết bạn là ai để hoàn tất hồ sơ</p>
 
         <div className={styles.roleToggle}>

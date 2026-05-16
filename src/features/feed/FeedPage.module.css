@@ -90,13 +90,13 @@
 .ucStat  { background: var(--color-bg); border-radius: var(--r-md); padding: 10px 8px; text-align: center; }
 .ucN     { font-size: 1.2rem; font-weight: 800; color: var(--color-primary); }
 .ucL     { font-size: 0.7rem; color: var(--color-text-2); margin-top: 2px; }
-.ucPoints {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
-  border-radius: var(--r-md); padding: 12px; margin-top: 10px;
+.ucProgressWrap {
+  background: linear-gradient(135deg, #F0FDF4, #DCFCE7);
+  border-radius: var(--r-md);
+  padding: 10px 14px 12px;
+  margin-top: 10px;
+  border: 1px solid #BBF7D0;
 }
-.ucPtsN  { font-size: 1.5rem; font-weight: 800; color: #92400E; }
-.ucPtsL  { font-size: 0.72rem; color: #78350F; }
 
 /* Side cards */
 .sideCard {

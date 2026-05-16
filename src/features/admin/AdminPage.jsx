@@ -57,7 +57,7 @@ export default function AdminPage() {
       <div className={styles.topBar}>
         <Link to="/" className={styles.logo}>
           <span className={styles.logoIco}>🌱</span>
-          <span className={styles.logoName}>IEC Kindness</span>
+          <span className={styles.logoName}>Kindness School</span>
         </Link>
         <Link to="/" className={styles.backBtn}>← Về trang chủ</Link>
       </div>

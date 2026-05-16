@@ -4,10 +4,11 @@ import { subscribeToUserPosts } from '../../services/post.service'
 import { getUserById, getUserRank } from '../../services/user.service'
 import useAuthStore from '../../store/useAuthStore'
 import { getKindnessTitle, getRoleLabel, getRoleClass } from '../../lib/utils'
-import Avatar           from '../../components/Avatar/Avatar'
-import PostCard         from '../../components/PostCard/PostCard'
-import Spinner          from '../../components/Spinner/Spinner'
-import EditProfileModal from './EditProfileModal'
+import Avatar             from '../../components/Avatar/Avatar'
+import PostCard           from '../../components/PostCard/PostCard'
+import Spinner            from '../../components/Spinner/Spinner'
+import EditProfileModal   from './EditProfileModal'
+import KindnessProgress   from '../../components/KindnessProgress/KindnessProgress'
 import styles from './ProfilePage.module.css'
 
 const TABS = [
@@ -132,6 +133,11 @@ export default function ProfilePage() {
           <div className={styles.statNum}>{posts.reduce((s, p) => s + p.likeCount, 0)}</div>
           <div className={styles.statLbl}>Lượt yêu thích</div>
         </div>
+      </div>
+
+      {/* Kindness progress bar */}
+      <div className={styles.progressWrap}>
+        <KindnessProgress points={profile.totalPoints ?? 0} />
       </div>
 
       {/* Tabs */}

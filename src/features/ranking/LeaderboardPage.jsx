@@ -37,7 +37,7 @@ export default function LeaderboardPage() {
       {/* Hero */}
       <section className={styles.hero}>
         <div className={styles.heroBadge}>🏆 Bảng xếp hạng Kindness Points</div>
-        <h1 className={styles.heroTitle}>Top học sinh tử tế<br />trường IEC</h1>
+        <h1 className={styles.heroTitle}>Những tấm lòng<br />tử tế nhất</h1>
         <p className={styles.heroDesc}>Những ngôi sao đang dẫn đầu bảng xếp hạng tháng này. Bạn có trong danh sách không?</p>
 
         {profile && (

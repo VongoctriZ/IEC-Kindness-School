@@ -36,7 +36,7 @@ export default function Navbar({ onPostClick }) {
     <>
       <nav className={`${styles.nav} ${scrolled ? styles.scrolled : ''}`}>
         <div className={styles.inner}>
-          <Link to="/" className={styles.logo}>🌱 IEC — Kindness School</Link>
+          <Link to="/" className={styles.logo}>🌱 Kindness School</Link>
 
           <div className={styles.links}>
             {NAV_LINKS.map(n => <NavItem key={n.to} {...n} />)}
