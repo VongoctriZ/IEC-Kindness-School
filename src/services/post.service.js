@@ -85,6 +85,29 @@ export async function isLikedByUser(postId, uid) {
   return snap.exists()
 }
 
+export async function getPostById(postId) {
+  const snap = await getDoc(doc(db, 'posts', postId))
+  if (!snap.exists()) return null
+  return { id: snap.id, ...snap.data() }
+}
+
+export function subscribeToPost(postId, callback, onError) {
+  return onSnapshot(doc(db, 'posts', postId),
+    snap => callback(snap.exists() ? { id: snap.id, ...snap.data() } : null),
+    err  => { console.error('[subscribeToPost]', err.code, err.message); onError?.(err) },
+  )
+}
+
+export async function updatePost(postId, uid, content, mediaUrl = undefined, mediaType = undefined) {
+  const ref  = doc(db, 'posts', postId)
+  const snap = await getDoc(ref)
+  if (!snap.exists() || snap.data().authorId !== uid) throw new Error('Không có quyền sửa')
+  const changes = { content, editedAt: serverTimestamp() }
+  if (mediaUrl  !== undefined) changes.mediaUrl  = mediaUrl
+  if (mediaType !== undefined) changes.mediaType = mediaType
+  await updateDoc(ref, changes)
+}
+
 export async function deletePost(postId, uid) {
   const snap = await getDoc(doc(db, 'posts', postId))
   if (!snap.exists() || snap.data().authorId !== uid) throw new Error('Không có quyền xoá')
@@ -96,8 +119,8 @@ export async function deleteComment(commentId, postId) {
   await updateDoc(doc(db, 'posts', postId), { commentCount: increment(-1) })
 }
 
-export async function addComment(postId, uid, profile, content) {
-  const data = buildCommentDoc(postId, uid, profile, content)
+export async function addComment(postId, uid, profile, content, parentId = null) {
+  const data = buildCommentDoc(postId, uid, profile, content, parentId)
   await addDoc(collection(db, 'comments'), { ...data, createdAt: serverTimestamp() })
   const postSnap = await getDoc(doc(db, 'posts', postId))
   await updateDoc(doc(db, 'posts', postId), { commentCount: increment(1) })
@@ -116,13 +139,13 @@ export async function addComment(postId, uid, profile, content) {
   }
 }
 
-export function subscribeToComments(postId, callback, onError, limitCount = 6) {
-  const q = query(
-    collection(db, 'comments'),
+export function subscribeToComments(postId, callback, onError, limitCount = null) {
+  const constraints = [
     where('postId', '==', postId),
     orderBy('createdAt', 'asc'),
-    limit(limitCount),
-  )
+  ]
+  if (limitCount != null) constraints.push(limit(limitCount))
+  const q = query(collection(db, 'comments'), ...constraints)
   return onSnapshot(q,
     snap => callback(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
     err  => { console.error('[subscribeToComments]', err.code, err.message); onError?.(err) },

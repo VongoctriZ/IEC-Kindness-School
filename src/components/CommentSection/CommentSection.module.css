@@ -9,10 +9,34 @@
 /* List */
 .list { display: flex; flex-direction: column; gap: 8px; }
 
+/* Block bao gồm comment + replies phía dưới */
+.commentBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Comment row (Avatar + bubble nằm ngang) */
 .item {
   display: flex;
   align-items: flex-start;
   gap: 8px;
+}
+
+/* Reply row — tương tự nhưng nhỏ hơn */
+.replyRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+/* Replies nằm DƯỚI comment gốc, thụt lề sang phải */
+.replies {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+  padding-left: 36px;
 }
 
 .bubble {
@@ -49,7 +73,8 @@
   color: var(--color-text-3);
   padding: 1px 4px;
 }
-.item:hover .delComment { opacity: 1; }
+.item:hover .delComment,
+.replyRow:hover .delComment { opacity: 1; }
 .delComment:hover { color: var(--color-error); }
 
 .text {
@@ -58,6 +83,17 @@
   line-height: 1.5;
   word-break: break-word;
 }
+
+/* Nút Trả lời */
+.replyBtn {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-top: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.item:hover .replyBtn { opacity: 1; }
 
 /* Count header */
 .countRow {
@@ -84,19 +120,47 @@
 /* Input form */
 .form {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   padding-top: 4px;
 }
 
 .inputWrap {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Reply hint bar */
+.replyHint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-xs);
+  color: var(--color-text-2);
+  background: var(--color-primary-light);
+  border-radius: var(--r-sm);
+  padding: 4px 10px;
+}
+.cancelReply {
+  margin-left: auto;
+  font-size: 0.65rem;
+  color: var(--color-text-3);
+  padding: 1px 4px;
+  border-radius: 50%;
+  transition: color 0.12s;
+}
+.cancelReply:hover { color: var(--color-error); }
+
+.inputRow {
   position: relative;
   display: flex;
   align-items: center;
 }
 
 .input {
+  flex: 1;
   width: 100%;
   padding: 9px 36px 9px 14px;
   border: 1.5px solid #E5E7EB;

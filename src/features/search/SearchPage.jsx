@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { searchUsers, searchPosts } from '../../services/search.service'
 import { formatRelativeTime, getRoleLabel, getRoleClass } from '../../lib/utils'
@@ -7,39 +7,86 @@ import Spinner from '../../components/Spinner/Spinner'
 import styles  from './SearchPage.module.css'
 
 const TABS = [
-  { id: 'users', label: '👤 Học sinh' },
-  { id: 'posts', label: '📝 Bài viết'  },
+  { id: 'users', label: '👤 Người dùng' },
+  { id: 'posts', label: '📝 Bài viết'   },
+]
+
+const ROLE_FILTERS = [
+  { id: '',        label: 'Tất cả'    },
+  { id: 'student', label: 'Học sinh'  },
+  { id: 'teacher', label: 'Giáo viên' },
+]
+
+const TIME_FILTERS = [
+  { id: '',   label: 'Tất cả'     },
+  { id: '7',  label: '7 ngày qua' },
+  { id: '30', label: '30 ngày qua'},
+]
+
+const SORT_OPTIONS = [
+  { id: 'newest', label: 'Mới nhất'       },
+  { id: 'likes',  label: 'Nhiều like nhất'},
 ]
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams()
   const initialQ = searchParams.get('q') ?? ''
 
-  const [tab,      setTab]      = useState('users')
-  const [query,    setQuery]    = useState(initialQ)
-  const [results,  setResults]  = useState([])
-  const [loading,  setLoading]  = useState(false)
-  const [searched, setSearched] = useState(false)
-  const timerRef   = useRef(null)
+  const [tab,        setTab]        = useState('users')
+  const [query,      setQuery]      = useState(initialQ)
+  const [rawResults, setRawResults] = useState([])
+  const [loading,    setLoading]    = useState(false)
+  const [searched,   setSearched]   = useState(false)
+
+  // Filters
+  const [roleFilter, setRoleFilter] = useState('')
+  const [timeFilter, setTimeFilter] = useState('')
+  const [sortBy,     setSortBy]     = useState('newest')
+
+  const timerRef = useRef(null)
 
   const doSearch = useCallback(async (term, currentTab) => {
-    if (!term.trim()) { setResults([]); setSearched(false); return }
+    if (!term.trim()) { setRawResults([]); setSearched(false); return }
     setLoading(true)
     try {
       const data = currentTab === 'users'
         ? await searchUsers(term)
         : await searchPosts(term)
-      setResults(data)
+      setRawResults(data)
       setSearched(true)
     } finally {
       setLoading(false)
     }
   }, [])
 
-  // Auto-search khi vào trang từ dropdown (có ?q= trong URL)
   useEffect(() => {
     if (initialQ.trim()) doSearch(initialQ, 'users')
   }, [])
+
+  // Áp dụng filter + sort lên rawResults
+  const results = useMemo(() => {
+    let data = [...rawResults]
+
+    if (tab === 'users') {
+      if (roleFilter) data = data.filter(u => u.role === roleFilter)
+    }
+
+    if (tab === 'posts') {
+      if (timeFilter) {
+        const days  = parseInt(timeFilter)
+        const since = Date.now() - days * 24 * 60 * 60 * 1000
+        data = data.filter(p => {
+          const ts = p.createdAt?.toMillis?.() ?? p.createdAt?.seconds * 1000 ?? 0
+          return ts >= since
+        })
+      }
+      if (sortBy === 'likes') {
+        data = [...data].sort((a, b) => (b.likeCount ?? 0) - (a.likeCount ?? 0))
+      }
+    }
+
+    return data
+  }, [rawResults, tab, roleFilter, timeFilter, sortBy])
 
   function handleInput(e) {
     const val = e.target.value
@@ -50,6 +97,9 @@ export default function SearchPage() {
 
   function handleTabChange(newTab) {
     setTab(newTab)
+    setRoleFilter('')
+    setTimeFilter('')
+    setSortBy('newest')
     if (query.trim()) doSearch(query, newTab)
   }
 
@@ -63,13 +113,13 @@ export default function SearchPage() {
           <span className={styles.ico}>🔍</span>
           <input
             className={styles.input}
-            placeholder={tab === 'users' ? 'Tên hoặc lớp học...' : 'Nội dung bài viết...'}
+            placeholder={tab === 'users' ? 'Tên người dùng hoặc lớp học...' : 'Nội dung bài viết...'}
             value={query}
             onChange={handleInput}
             autoFocus
           />
           {query && (
-            <button className={styles.clear} onClick={() => { setQuery(''); setResults([]); setSearched(false) }}>
+            <button className={styles.clear} onClick={() => { setQuery(''); setRawResults([]); setSearched(false) }}>
               ✕
             </button>
           )}
@@ -83,6 +133,48 @@ export default function SearchPage() {
             >{t.label}</button>
           ))}
         </div>
+
+        {/* Filters */}
+        {searched && (
+          <div className={styles.filters}>
+            {tab === 'users' && (
+              <div className={styles.filterGroup}>
+                <span className={styles.filterLabel}>Vai trò:</span>
+                {ROLE_FILTERS.map(f => (
+                  <button
+                    key={f.id}
+                    className={`${styles.chip} ${roleFilter === f.id ? styles.chipActive : ''}`}
+                    onClick={() => setRoleFilter(f.id)}
+                  >{f.label}</button>
+                ))}
+              </div>
+            )}
+            {tab === 'posts' && (
+              <>
+                <div className={styles.filterGroup}>
+                  <span className={styles.filterLabel}>Thời gian:</span>
+                  {TIME_FILTERS.map(f => (
+                    <button
+                      key={f.id}
+                      className={`${styles.chip} ${timeFilter === f.id ? styles.chipActive : ''}`}
+                      onClick={() => setTimeFilter(f.id)}
+                    >{f.label}</button>
+                  ))}
+                </div>
+                <div className={styles.filterGroup}>
+                  <span className={styles.filterLabel}>Sắp xếp:</span>
+                  {SORT_OPTIONS.map(s => (
+                    <button
+                      key={s.id}
+                      className={`${styles.chip} ${sortBy === s.id ? styles.chipActive : ''}`}
+                      onClick={() => setSortBy(s.id)}
+                    >{s.label}</button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       <div className={styles.body}>
@@ -127,7 +219,7 @@ export default function SearchPage() {
           <div className={styles.postList}>
             <div className={styles.count}>{results.length} kết quả</div>
             {results.map(p => (
-              <div key={p.id} className={styles.postRow}>
+              <Link key={p.id} to={`/post/${p.id}`} className={styles.postRow}>
                 <Avatar src={p.authorPhotoURL} name={p.authorName} uid={p.authorId}
                   size="medium" to={`/profile/${p.authorId}`} />
                 <div className={styles.postInfo}>
@@ -141,7 +233,7 @@ export default function SearchPage() {
                     <span>💬 {p.commentCount}</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
