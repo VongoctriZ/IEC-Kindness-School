@@ -1,7 +1,7 @@
 import {
   doc, getDoc, setDoc, updateDoc, getDocs, deleteDoc,
   collection, query, orderBy, limit, increment, where,
-  onSnapshot,
+  onSnapshot, writeBatch,
 } from 'firebase/firestore'
 import { db } from './firebase'
 import { buildUserDoc } from '../mvc/models/user.model'
@@ -50,13 +50,15 @@ export async function addPoints(uid, points) {
   await updateDoc(doc(db, 'users', uid), { totalPoints: increment(points) })
 }
 
-/** Lấy rank của một user cụ thể (đếm số user có điểm cao hơn) */
+/** Lấy rank chính xác bằng cách đếm số user có điểm cao hơn */
 export async function getUserRank(uid) {
   const profile = await getUserById(uid)
   if (!profile) return null
-  const all = await getLeaderboard(LEADERBOARD_SIZE)
-  const idx = all.findIndex(u => u.uid === uid)
-  return idx >= 0 ? idx + 1 : null
+  const pts  = profile.totalPoints ?? 0
+  const snap = await getDocs(
+    query(collection(db, 'users'), where('totalPoints', '>', pts))
+  )
+  return snap.size + 1
 }
 
 export async function getPendingTeachers() {
@@ -71,7 +73,17 @@ export async function getPendingTeachers() {
 }
 
 export async function approveTeacher(uid) {
+  // 1. Cập nhật role trong users collection
   await updateDoc(doc(db, 'users', uid), { role: ROLES.TEACHER })
+
+  // 2. Batch-update authorRole trong tất cả posts của user này (fix B1/B2)
+  const postsSnap = await getDocs(
+    query(collection(db, 'posts'), where('authorId', '==', uid))
+  )
+  if (postsSnap.empty) return
+  const batch = writeBatch(db)
+  postsSnap.docs.forEach(d => batch.update(d.ref, { authorRole: ROLES.TEACHER }))
+  await batch.commit()
 }
 
 export async function rejectTeacher(uid) {

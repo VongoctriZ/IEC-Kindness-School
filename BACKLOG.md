@@ -137,12 +137,12 @@
 
 ## Bugs / Tech Debt đã biết
 
-| # | Vấn đề | Ưu tiên |
-|---|--------|---------|
-| B1 | `post.authorRole` là snapshot — không tự update khi role thay đổi (đã fix cho owner view, chưa fix cho người khác xem) | Medium |
-| B2 | `approveTeacher()` chưa batch-update `authorRole` trong post documents | Medium |
-| B3 | Leaderboard all-time dùng `limit(50)` — có thể miss user nếu > 50 người | Low |
-| B4 | Không có rate limiting cho like/comment (người dùng có thể spam điểm) | Low |
+| # | Vấn đề | Ưu tiên | Trạng thái |
+|---|--------|---------|-----------|
+| B1 | `post.authorRole` là snapshot — không tự update khi role thay đổi | Medium | ✅ Fixed 2026-05-16 — giải quyết qua B2 |
+| B2 | `approveTeacher()` chưa batch-update `authorRole` trong post documents | Medium | ✅ Fixed 2026-05-16 — dùng `writeBatch` update toàn bộ posts |
+| B3 | Leaderboard all-time dùng `limit(50)` — có thể miss user nếu > 50 người | Low | ✅ Fixed 2026-05-16 — `LEADERBOARD_SIZE` → 200; `getUserRank` dùng count query |
+| B4 | Không có rate limiting cho like/comment (người dùng có thể spam điểm) | Low | ✅ Fixed 2026-05-16 — cooldown 8s giữa các lần gửi comment, hiển thị countdown |
 
 ---
 

@@ -8,7 +8,8 @@ import Avatar from '../Avatar/Avatar'
 import { formatRelativeTime } from '../../lib/utils'
 import styles from './CommentSection.module.css'
 
-const PAGE = 5
+const PAGE             = 5
+const COMMENT_COOLDOWN = 8  // giây
 
 export default function CommentSection({ postId, totalCount = 0 }) {
   const [allComments,  setAllComments]  = useState([])
@@ -17,6 +18,9 @@ export default function CommentSection({ postId, totalCount = 0 }) {
   const [content,      setContent]      = useState('')
   const [sending,      setSending]      = useState(false)
   const [replyTo,      setReplyTo]      = useState(null)
+  const [cooldown,     setCooldown]     = useState(0)   // giây còn lại
+  const lastSentRef = useRef(0)
+  const cooldownRef = useRef(null)
   const { user, profile } = useAuthStore()
   const isTeacher = profile?.role === 'teacher'
   const inputRef  = useRef(null)
@@ -81,15 +85,31 @@ export default function CommentSection({ postId, totalCount = 0 }) {
     }
   }
 
+  function startCooldown() {
+    clearInterval(cooldownRef.current)
+    lastSentRef.current = Date.now()
+    setCooldown(COMMENT_COOLDOWN)
+    cooldownRef.current = setInterval(() => {
+      const left = Math.ceil((COMMENT_COOLDOWN * 1000 - (Date.now() - lastSentRef.current)) / 1000)
+      if (left <= 0) {
+        clearInterval(cooldownRef.current)
+        setCooldown(0)
+      } else {
+        setCooldown(left)
+      }
+    }, 500)
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!content.trim() || !user || !profile || sending) return
+    if (!content.trim() || !user || !profile || sending || cooldown > 0) return
     setSending(true)
     const parentId = replyTo?.id ?? null
     try {
       await addComment(postId, user.uid, profile, content.trim(), parentId)
       setContent('')
       setReplyTo(null)
+      startCooldown()
       if (!parentId) setVisLimit(v => Math.max(v, displayed.length + 1))
       inputRef.current?.focus()
     } finally {
@@ -200,12 +220,16 @@ export default function CommentSection({ postId, totalCount = 0 }) {
                 onChange={e => setContent(e.target.value)}
                 maxLength={300}
                 autoComplete="off"
+                disabled={cooldown > 0}
               />
-              {content.trim() && (
-                <button type="submit" className={styles.send} disabled={sending}>
-                  {sending ? '…' : '↑'}
-                </button>
-              )}
+              {cooldown > 0
+                ? <span className={styles.cooldown}>{cooldown}s</span>
+                : content.trim() && (
+                    <button type="submit" className={styles.send} disabled={sending}>
+                      {sending ? '…' : '↑'}
+                    </button>
+                  )
+              }
             </div>
           </div>
         </form>

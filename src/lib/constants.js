@@ -18,4 +18,4 @@ export const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'im
 export const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/webm']
 
 export const FEED_PAGE_SIZE = 20
-export const LEADERBOARD_SIZE = 50
+export const LEADERBOARD_SIZE = 200

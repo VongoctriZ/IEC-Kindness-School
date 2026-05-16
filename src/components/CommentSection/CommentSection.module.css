@@ -214,6 +214,18 @@
 .input:focus { border-color: var(--color-primary); background: white; }
 .input::placeholder { color: var(--color-text-3); }
 
+.cooldown {
+  position: absolute;
+  right: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text-3);
+  min-width: 24px;
+  text-align: center;
+}
+
+.input:disabled { opacity: 0.6; cursor: not-allowed; }
+
 .send {
   position: absolute;
   right: 6px;
