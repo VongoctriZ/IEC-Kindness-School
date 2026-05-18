@@ -69,6 +69,25 @@
   box-shadow: var(--shadow);
 }
 
+.loadMoreBtn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 4px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-primary-light);
+  border-radius: var(--radius-pill);
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.loadMoreBtn:hover {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
 /* User card */
 .userCard {
   background: var(--color-surface);
