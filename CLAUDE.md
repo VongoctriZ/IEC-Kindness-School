@@ -1,4 +1,4 @@
-# IEC-KindnessSchool — CLAUDE.md
+# KindnessSchool — CLAUDE.md
 
 ## Mandatory Rules
 
@@ -12,11 +12,11 @@
 
 ## Project Overview
 
-**IEC-KindnessSchool** là một mạng xã hội học đường mang phong cách gamification và tích cực.
+**KindnessSchool** là một mạng xã hội học đường mang phong cách gamification và tích cực.
 Mỗi hành động tốt (đăng bài, bình luận, tương tác) được ghi nhận bằng điểm thưởng (Kindness Points),
 hiển thị trên bảng xếp hạng và lan tỏa qua giao diện tươi sáng, vui nhộn.
 
-- **Đối tượng:** Học sinh trường IEC
+- **Đối tượng:** Học sinh
 - **Mục tiêu:** Khuyến khích hành động tích cực thông qua cơ chế điểm thưởng và nhận diện cộng đồng
 - **Ngôn ngữ giao diện:** Tiếng Việt
 
@@ -44,7 +44,7 @@ npm run preview      # preview build
 **Env vars** (tạo file `.env` ở root, KHÔNG commit lên git — xem `.env.example`):
 
 ```
-VITE_APP_NAME=IEC-KindnessSchool
+VITE_APP_NAME=KindnessSchool
 
 # Firebase config (lấy từ Firebase Console > Project Settings > Your apps)
 VITE_FIREBASE_API_KEY=
