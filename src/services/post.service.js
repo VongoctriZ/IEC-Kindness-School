@@ -16,7 +16,8 @@ export async function createPost(uid, profile, content, mediaUrl = null, mediaTy
     ...data,
     createdAt: serverTimestamp(),
   })
-  await addPoints(uid, POINTS.POST)
+  // Non-fatal: post đã tạo thành công dù points bị lỗi (VD: rules chưa deploy)
+  addPoints(uid, POINTS.POST, 'post', ref.id).catch(e => console.error('[createPost] addPoints:', e.message))
   return ref.id
 }
 
@@ -62,7 +63,7 @@ export async function toggleLike(postId, uid) {
       const postData = postSnap.data()
       const authorId = postData.authorId
       if (authorId !== uid) {
-        addPoints(authorId, POINTS.LIKE_RECEIVED)
+        addPoints(authorId, POINTS.LIKE_RECEIVED, 'like_received', postId)
       }
       // Notification (outside transaction — non-critical)
       const liker = await getUserById(uid)
@@ -108,9 +109,12 @@ export async function updatePost(postId, uid, content, mediaUrl = undefined, med
   await updateDoc(ref, changes)
 }
 
-export async function deletePost(postId, uid) {
+export async function deletePost(postId, uid, role) {
   const snap = await getDoc(doc(db, 'posts', postId))
-  if (!snap.exists() || snap.data().authorId !== uid) throw new Error('Không có quyền xoá')
+  if (!snap.exists()) throw new Error('Bài viết không tồn tại')
+  const isAuthor     = snap.data().authorId === uid
+  const isPrivileged = role === 'teacher' || role === 'admin'
+  if (!isAuthor && !isPrivileged) throw new Error('Không có quyền xoá')
   await deleteDoc(doc(db, 'posts', postId))
 }
 
@@ -141,10 +145,10 @@ export async function toggleCommentLike(commentId, uid) {
 
 export async function addComment(postId, uid, profile, content, parentId = null) {
   const data = buildCommentDoc(postId, uid, profile, content, parentId)
-  await addDoc(collection(db, 'comments'), { ...data, createdAt: serverTimestamp() })
+  const commentRef = await addDoc(collection(db, 'comments'), { ...data, createdAt: serverTimestamp() })
   const postSnap = await getDoc(doc(db, 'posts', postId))
   await updateDoc(doc(db, 'posts', postId), { commentCount: increment(1) })
-  await addPoints(uid, POINTS.COMMENT)
+  await addPoints(uid, POINTS.COMMENT, 'comment', commentRef.id)
   if (postSnap.exists()) {
     const postData  = postSnap.data()
     const authorId  = postData.authorId

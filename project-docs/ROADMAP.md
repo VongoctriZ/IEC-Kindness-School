@@ -1,4 +1,4 @@
-# IEC-KindnessSchool — Roadmap phát triển
+# KindnessSchool — Roadmap phát triển
 
 > Cập nhật lần cuối: 2026-05-14 (sprint 7)
 > Chi tiết sub-task và bug backlog: xem **[BACKLOG.md](./BACKLOG.md)**
@@ -83,6 +83,6 @@ Tuần 8    ── Mở rộng toàn trường + domain riêng
 - **Comment count**: `commentCount` trên post document tăng qua `increment()` khi có bình luận thật; seed data có thể lệch — chấp nhận được
 - **Like count**: Tương tự comment count, seed data không đảm bảo chính xác
 - **Media storage**: Dùng **Firebase Storage** (Blaze plan). Upload qua `uploadBytesResumable` SDK, hỗ trợ progress bar. File lưu theo path `avatars/{uid}/avatar`, `covers/{uid}/cover`, `posts/{uid}/{timestamp}`
-- **Firebase plan**: Đã nâng cấp lên **Blaze (pay-as-you-go)** — mở khoá Storage + Hosting. Ước tính chi phí ~$0/tháng với quy mô trường IEC
+- **Firebase plan**: Đã nâng cấp lên **Blaze (pay-as-you-go)** — mở khoá Storage + Hosting. Ước tính chi phí ~$0/tháng với quy mô nhỏ
 - **Deploy**: Firebase Hosting đã cấu hình (`firebase.json` + `.firebaserc`). Lệnh: `npm run build && firebase deploy`
 - **Git**: Đã khởi tạo repository, `.gitignore` bảo vệ `.env`, admin SDK key, và thư mục design/screenshots

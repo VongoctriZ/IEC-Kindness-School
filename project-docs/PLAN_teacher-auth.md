@@ -60,7 +60,7 @@ const [showPass, setShowPass] = useState(false)
 **Cấu trúc Firestore:**
 ```
 config/app
-  teacherCode: "MGV-2025-IEC"    ← Admin đặt, đổi định kỳ
+  teacherCode: "MGV-2025-KS"    ← Admin đặt, đổi định kỳ
 ```
 
 **Firestore Rule cho config:**
@@ -117,7 +117,7 @@ Chọn "Giáo viên"
 
 ```
 ┌─────────────────────────────────────────┐
-│  🌱 Chào mừng bạn đến IEC Kindness!     │
+│  🌱 Chào mừng bạn đến Kindness School!  │
 │  Hoàn thiện hồ sơ để bắt đầu           │
 │                                         │
 │  Bạn là:                                │
@@ -157,6 +157,6 @@ Chọn "Giáo viên"
 
 ## Ghi chú bổ sung
 
-- **Nếu trường IEC có domain email riêng cho GV** (VD: `gv.iec.edu.vn`): có thể bỏ hoàn toàn teacher code, chỉ cần kiểm tra `email.endsWith('@gv.iec.edu.vn')` → tự động `role: 'teacher'`. Đơn giản hơn nhiều.
+- **Nếu trường có domain email riêng cho GV** (VD: `gv.school.edu.vn`): có thể bỏ hoàn toàn teacher code, chỉ cần kiểm tra `email.endsWith('@gv.school.edu.vn')` → tự động `role: 'teacher'`. Đơn giản hơn nhiều.
 - **Tương lai (Phase 2):** Thêm `status: 'pending' | 'active'` vào user doc, GV đăng ký xong phải chờ admin duyệt. Cần trang `/admin` để duyệt. Phù hợp khi trường có > 20 GV.
 - **Teacher code hiện tại nên là:** `MGV-[năm học]-[chuỗi random]`, VD: `MGV-2526-K9mX2`

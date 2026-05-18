@@ -30,7 +30,7 @@ export default function PostModal({ onClose }) {
     setError('')
     try {
       await handleCreatePost(content, file)
-      onClose()
+      window.location.reload()
     } catch (e) {
       setError(e.message)
     } finally {

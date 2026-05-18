@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams }  from 'react-router-dom'
-import { subscribeToUserPosts } from '../../services/post.service'
+import { subscribeToUserPosts, deletePost } from '../../services/post.service'
 import { getUserById, getUserRank } from '../../services/user.service'
 import useAuthStore from '../../store/useAuthStore'
-import { getKindnessTitle, getRoleLabel, getRoleClass } from '../../lib/utils'
+import { getKindnessTitle, getRoleLabel, getRoleClass, derivePointsDisplay } from '../../lib/utils'
 import Avatar             from '../../components/Avatar/Avatar'
 import PostCard           from '../../components/PostCard/PostCard'
 import Spinner            from '../../components/Spinner/Spinner'
@@ -42,6 +42,16 @@ export default function ProfilePage() {
   const [editOpen,    setEditOpen]    = useState(false)
 
   const isOwn = targetUid === user?.uid
+
+  const handleDeletePost = useCallback(async (postId) => {
+    if (!user) return
+    setPosts(prev => prev.filter(p => p.id !== postId))
+    try {
+      await deletePost(postId, user.uid, myProfile?.role)
+    } catch (e) {
+      console.error('[handleDeletePost]', e.message)
+    }
+  }, [user, myProfile])
 
   useEffect(() => {
     if (isOwn && myProfile) {
@@ -137,7 +147,11 @@ export default function ProfilePage() {
 
       {/* Kindness progress bar */}
       <div className={styles.progressWrap}>
-        <KindnessProgress points={profile.totalPoints ?? 0} />
+        <KindnessProgress
+            points={profile.totalPoints ?? 0}
+            cyclePoints={derivePointsDisplay(profile).cyclePoints}
+            matureTreeCount={derivePointsDisplay(profile).matureTreeCount}
+          />
       </div>
 
       {/* Tabs */}
@@ -161,7 +175,7 @@ export default function ProfilePage() {
             {posts.length === 0
               ? <div className={styles.empty}>Chưa có bài viết nào.</div>
               : posts.map(p => (
-                  <PostCard key={p.id} post={p} isLiked={false} currentUid={user?.uid} currentUserRole={myProfile?.role} />
+                  <PostCard key={p.id} post={p} isLiked={false} currentUid={user?.uid} currentUserRole={myProfile?.role} onDelete={handleDeletePost} />
                 ))
             }
           </div>

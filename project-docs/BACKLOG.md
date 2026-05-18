@@ -1,4 +1,4 @@
-# IEC-KindnessSchool — Feature Backlog
+# KindnessSchool — Feature Backlog
 
 > Cập nhật: 2026-05-14
 > Dùng file này để track chi tiết từng tính năng sắp triển khai.

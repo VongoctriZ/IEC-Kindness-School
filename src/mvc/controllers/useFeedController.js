@@ -9,7 +9,7 @@ import usePointStore  from '../../store/usePointStore'
 import { POINTS }     from '../../lib/constants'
 
 export function useFeedController() {
-  const { posts, likedPosts, loading, setPosts, setLikedPosts, setLoading, toggleLikeLocally, removePost } = usePostStore()
+  const { posts, likedPosts, loading, feedLimit, setPosts, setLikedPosts, setLoading, toggleLikeLocally, removePost, prependPost, increaseLimit } = usePostStore()
   const { user, profile }  = useAuthStore()
   const pushPoint          = usePointStore(s => s.push)
 
@@ -27,11 +27,15 @@ export function useFeedController() {
         }
         setLoading(false)
       },
-      () => setLoading(false),  // thoát spinner khi lỗi
+      () => setLoading(false),
+      feedLimit,
     )
 
     return unsub
-  }, [user?.uid])
+  }, [user?.uid, feedLimit])
+
+  const loadMore = useCallback(() => increaseLimit(), [increaseLimit])
+  const hasMore  = posts.length >= feedLimit
 
   const handleCreatePost = useCallback(async (content, file = null) => {
     if (!user || !profile || !content.trim()) return
@@ -45,7 +49,21 @@ export function useFeedController() {
       mediaType = result.mediaType
     }
 
-    await createPost(user.uid, profile, content.trim(), mediaUrl, mediaType)
+    const postId = await createPost(user.uid, profile, content.trim(), mediaUrl, mediaType)
+    prependPost({
+      id:             postId,
+      authorId:       user.uid,
+      authorName:     profile.displayName,
+      authorRole:     profile.role,
+      authorGrade:    profile.grade ?? '',
+      authorPhotoURL: profile.photoURL ?? null,
+      content:        content.trim(),
+      mediaUrl:       mediaUrl ?? null,
+      mediaType:      mediaType ?? null,
+      likeCount:      0,
+      commentCount:   0,
+      createdAt:      { toDate: () => new Date() },
+    })
     pushPoint({ action: 'post', points: POINTS.POST, label: 'Đăng bài viết' })
   }, [user, profile])
 
@@ -61,13 +79,15 @@ export function useFeedController() {
 
   const handleDelete = useCallback(async (postId) => {
     if (!user) return
-    removePost(postId)  // optimistic
+    const snapshot = usePostStore.getState().posts
+    removePost(postId)
     try {
-      await deletePost(postId, user.uid)
+      await deletePost(postId, user.uid, profile?.role)
     } catch (e) {
-      console.error(e)
+      setPosts(snapshot)
+      console.error('[handleDelete]', e.message)
     }
-  }, [user])
+  }, [user, profile])
 
-  return { posts, likedPosts, loading, handleCreatePost, handleLike, handleDelete }
+  return { posts, likedPosts, loading, handleCreatePost, handleLike, handleDelete, loadMore, hasMore }
 }

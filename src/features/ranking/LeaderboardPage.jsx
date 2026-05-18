@@ -1,14 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useLeaderboard } from '../../mvc/controllers/usePointsController'
 import useAuthStore from '../../store/useAuthStore'
-import { getKindnessTitle } from '../../lib/utils'
+import { getKindnessTitle, extractGradeBlock, derivePointsDisplay } from '../../lib/utils'
+import { GRADE_BLOCKS } from '../../lib/constants'
+import { getWeeklyRanking } from '../../services/ranking.service'
 import Avatar   from '../../components/Avatar/Avatar'
 import Spinner  from '../../components/Spinner/Spinner'
 import styles from './LeaderboardPage.module.css'
 
-const TIME_FILTERS  = ['Tháng này', 'Năm học', 'Tất cả']
-const CLASS_FILTERS = ['Tất cả', 'Khối 10', 'Khối 11', 'Khối 12']
+const TIME_FILTERS  = ['Tuần này', 'Tháng này', 'Năm học', 'Tất cả']
+const CLASS_FILTERS = ['Tất cả', ...GRADE_BLOCKS.map(k => `Khối ${k}`)]
 
 export default function LeaderboardPage() {
   const { users, loading }  = useLeaderboard(50)
@@ -16,20 +18,49 @@ export default function LeaderboardPage() {
   const [timeFilter,  setTimeFilter]  = useState('Tháng này')
   const [classFilter, setClassFilter] = useState('Tất cả')
   const [search,      setSearch]      = useState('')
+  const [weeklyData,  setWeeklyData]  = useState([])
+  const [weeklyLoading, setWeeklyLoading] = useState(false)
 
-  const myRank = users.findIndex(u => u.uid === user?.uid) + 1
+  const isWeekly = timeFilter === 'Tuần này'
 
-  const filtered = users.filter(u => {
-    const matchClass = classFilter === 'Tất cả' || u.grade?.startsWith(classFilter.replace('Khối ', ''))
+  useEffect(() => {
+    if (!isWeekly) return
+    setWeeklyLoading(true)
+    getWeeklyRanking(50)
+      .then(rows => {
+        // Merge với user profiles đã có trong users list
+        const profileMap = {}
+        users.forEach(u => { profileMap[u.uid] = u })
+        const merged = rows
+          .map(r => ({ ...profileMap[r.uid], uid: r.uid, weeklyPoints: r.weeklyPoints }))
+          .filter(r => r.displayName)  // bỏ uid không có profile trong top-50 list
+        setWeeklyData(merged)
+      })
+      .catch(e => console.error('[weeklyRanking]', e))
+      .finally(() => setWeeklyLoading(false))
+  }, [isWeekly, users])
+
+  // Nguồn data theo mode
+  const sourceUsers = isWeekly ? weeklyData : users
+  const getPts      = u => !u ? 0 : isWeekly ? (u.weeklyPoints ?? 0) : (u.totalPoints ?? 0)
+
+  const filtered = sourceUsers.filter(u => {
+    const matchClass  = classFilter === 'Tất cả'
+      || extractGradeBlock(u.grade) === parseInt(classFilter.replace('Khối ', ''), 10)
     const matchSearch = !search || u.displayName?.toLowerCase().includes(search.toLowerCase())
+      || u.grade?.toLowerCase().includes(search.toLowerCase())
     return matchClass && matchSearch
   })
 
-  const top3 = filtered.slice(0, 3)
-  const rest  = filtered.slice(3)
-  const maxPts = filtered[0]?.totalPoints || 1
-
+  const top3        = filtered.slice(0, 3)
+  const maxPts      = filtered.length > 0 ? (getPts(filtered[0]) || 1) : 1
   const podiumOrder = top3.length >= 3 ? [top3[1], top3[0], top3[2]] : top3
+  const myRank      = isWeekly
+    ? weeklyData.findIndex(u => u.uid === user?.uid) + 1
+    : users.findIndex(u => u.uid === user?.uid) + 1
+  const myWeeklyPts = isWeekly ? (weeklyData.find(u => u.uid === user?.uid)?.weeklyPoints ?? 0) : null
+
+  const isLoading = loading || (isWeekly && weeklyLoading)
 
   return (
     <div className={styles.page}>
@@ -44,12 +75,12 @@ export default function LeaderboardPage() {
           <div className={styles.myRank}>
             <div>
               <div className={styles.myRankNum}>#{myRank || '—'}</div>
-              <div className={styles.myRankLbl}>Hạng của bạn</div>
+              <div className={styles.myRankLbl}>{isWeekly ? 'Hạng tuần này' : 'Hạng của bạn'}</div>
             </div>
             <div className={styles.divider} />
             <div>
-              <div className={styles.myPts}>⭐ {profile.totalPoints ?? 0}</div>
-              <div className={styles.myPtsLbl}>Kindness Points</div>
+              <div className={styles.myPts}>⭐ {isWeekly ? (myWeeklyPts ?? 0) : (profile.totalPoints ?? 0)}</div>
+              <div className={styles.myPtsLbl}>{isWeekly ? 'Điểm tuần này' : 'Kindness Points'}</div>
             </div>
           </div>
         )}
@@ -89,17 +120,24 @@ export default function LeaderboardPage() {
         </div>
       </div>
 
-      {loading
+      {isLoading
         ? <div className={styles.center}><Spinner size="lg" /></div>
         : (
           <div className={styles.content}>
+
+            {isWeekly && (
+              <div className={styles.weeklyBanner}>
+                📅 Điểm tích lũy từ thứ Hai tuần này — cập nhật mỗi khi có hành động mới
+              </div>
+            )}
 
             {/* Podium top 3 */}
             {top3.length === 3 && (
               <div className={styles.podiumSection}>
                 <div className={styles.podium}>
                   {podiumOrder.map((u, idx) => {
-                    const rank = filtered.indexOf(u) + 1
+                    const rank   = filtered.indexOf(u) + 1
+                    const pts    = getPts(u)
                     const heights = [90, 120, 70]
                     const colors  = [
                       'linear-gradient(135deg,#9CA3AF,#D1D5DB)',
@@ -113,8 +151,8 @@ export default function LeaderboardPage() {
                           size={rank === 1 ? 'xxl' : 'xl'} />
                         <div className={styles.podiumName}>{u.displayName}</div>
                         <div className={styles.podiumClass}>{u.grade}</div>
-                        <div className={styles.podiumPts}>⭐ {u.totalPoints}</div>
-                        <div className={styles.podiumTitle}>{getKindnessTitle(u.totalPoints ?? 0).icon} {getKindnessTitle(u.totalPoints ?? 0).title}</div>
+                        <div className={styles.podiumPts}>⭐ {pts}</div>
+                        <div className={styles.podiumTitle}>{getKindnessTitle(derivePointsDisplay(u).cyclePoints).icon} {getKindnessTitle(derivePointsDisplay(u).cyclePoints).title}</div>
                         <div className={styles.podiumStand}
                           style={{ height: heights[idx], background: colors[idx] }}>
                           {rank}
@@ -134,8 +172,15 @@ export default function LeaderboardPage() {
                   <span className={styles.tableCount}>{filtered.length} học sinh</span>
                 </div>
 
+                {filtered.length === 0 && (
+                  <div className={styles.emptyTable}>
+                    {isWeekly ? 'Chưa có hoạt động nào tuần này.' : 'Không tìm thấy kết quả.'}
+                  </div>
+                )}
+
                 {filtered.map((u, i) => {
                   const isMe = u.uid === user?.uid
+                  const pts  = getPts(u)
                   return (
                     <Link key={u.uid} to={`/profile/${u.uid}`}
                       className={`${styles.row} ${i < 3 ? styles.top3Row : ''} ${isMe ? styles.meRow : ''}`}>
@@ -150,16 +195,16 @@ export default function LeaderboardPage() {
                         </div>
                         <div className={styles.sub}>
                           {u.grade}
-                          <span className={styles.kindTag}>{getKindnessTitle(u.totalPoints ?? 0).icon} {getKindnessTitle(u.totalPoints ?? 0).title}</span>
+                          <span className={styles.kindTag}>{getKindnessTitle(derivePointsDisplay(u).cyclePoints).icon} {getKindnessTitle(derivePointsDisplay(u).cyclePoints).title}</span>
                         </div>
                       </div>
                       <div className={styles.barWrap}>
                         <div className={styles.bar}>
-                          <div className={styles.barFill} style={{ width: `${(u.totalPoints / maxPts) * 100}%` }} />
+                          <div className={styles.barFill} style={{ width: `${(pts / maxPts) * 100}%` }} />
                         </div>
                       </div>
                       <div className={`${styles.pts} ${isMe ? styles.mePts : ''}`}>
-                        ⭐ {u.totalPoints}
+                        ⭐ {pts}
                       </div>
                     </Link>
                   )

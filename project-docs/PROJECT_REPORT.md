@@ -1,4 +1,4 @@
-# IEC-KindnessSchool — Báo cáo tiến độ dự án
+# KindnessSchool — Báo cáo tiến độ dự án
 
 > Cập nhật: 2026-05-16 · Phiên bản 2.0
 
@@ -8,11 +8,11 @@
 
 ### Bối cảnh & Vấn đề
 
-Trường IEC cần một kênh để khuyến khích học sinh chia sẻ hành động tốt, tham gia tích cực vào hoạt động cộng đồng. Các mạng xã hội thông thường (Facebook, TikTok) không phù hợp với môi trường học đường và thiếu cơ chế ghi nhận cụ thể.
+Học sinh cần một kênh để chia sẻ hành động tốt, tham gia tích cực vào hoạt động cộng đồng. Các mạng xã hội thông thường (Facebook, TikTok) không phù hợp với môi trường học đường và thiếu cơ chế ghi nhận cụ thể.
 
 ### Giải pháp: Mạng xã hội học đường tích cực
 
-**IEC-KindnessSchool** là nền tảng mạng xã hội nội bộ dành riêng cho học sinh và giáo viên trường IEC, kết hợp cơ chế **gamification** (trò chơi hóa) để khuyến khích hành động tốt.
+**KindnessSchool** là nền tảng mạng xã hội học đường dành riêng cho học sinh và giáo viên, kết hợp cơ chế **gamification** (trò chơi hóa) để khuyến khích hành động tốt.
 
 Triết lý cốt lõi:
 > *"Mỗi hành động tốt đều được ghi nhận — không bị lãng quên."*
@@ -234,13 +234,13 @@ Sprint 8 — UX & Bug Fixes (2026-05-16)
 - Tốc độ load trên mạng trường (WiFi yếu)?
 
 #### Giai đoạn 2 — Beta toàn trường (Tuần 3–4)
-> **Quy mô:** Toàn bộ học sinh IEC
+> **Quy mô:** Toàn bộ người dùng
 
 Mở rộng sau khi pilot ổn định. Giáo viên đã quen với việc kiểm duyệt nội dung.
 
 **Nâng cấp ưu tiên sau pilot:**
 - Xác thực email khi đăng ký (Firebase Auth email verification — 1 ngày làm)
-- Giới hạn đăng ký chỉ email trường (`@iec.edu.vn`) nếu trường có
+- Giới hạn đăng ký chỉ email trường (VD: `@school.edu.vn`) nếu có domain riêng
 - Thông báo push (Firebase Cloud Messaging) — tùy chọn
 
 #### Giai đoạn 3 — Full Launch
@@ -318,7 +318,7 @@ Push lên master
 ### Chạy local
 
 ```bash
-git clone https://github.com/VongoctriZ/IEC-Kindness-School
+git clone https://github.com/VongoctriZ/KindnessSchool
 cd Web-project
 npm install
 cp .env.example .env   # điền VITE_FIREBASE_* từ Firebase Console

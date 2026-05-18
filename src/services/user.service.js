@@ -1,11 +1,11 @@
 import {
   doc, getDoc, setDoc, updateDoc, getDocs, deleteDoc,
   collection, query, orderBy, limit, increment, where,
-  onSnapshot, writeBatch,
+  onSnapshot, writeBatch, runTransaction, addDoc, serverTimestamp,
 } from 'firebase/firestore'
 import { db } from './firebase'
 import { buildUserDoc } from '../mvc/models/user.model'
-import { POINTS, LEADERBOARD_SIZE, ROLES } from '../lib/constants'
+import { POINTS, LEADERBOARD_SIZE, ROLES, MATURE_TREE_THRESHOLD } from '../lib/constants'
 
 export async function createUserDocument(firebaseUser, extra = {}, isNew = true) {
   const ref  = doc(db, 'users', firebaseUser.uid)
@@ -46,8 +46,36 @@ export function subscribeToLeaderboard(callback, onError, n = 10) {
   )
 }
 
-export async function addPoints(uid, points) {
-  await updateDoc(doc(db, 'users', uid), { totalPoints: increment(points) })
+export async function addPoints(uid, points, action = 'other', refId = '') {
+  const userRef = doc(db, 'users', uid)
+  await runTransaction(db, async tx => {
+    const snap      = await tx.get(userRef)
+    const data      = snap.data() ?? {}
+    const totalPts  = data.totalPoints ?? 0
+
+    // Migrate legacy users: nếu cyclePoints/matureTreeCount chưa có, derive từ totalPoints
+    const current      = data.cyclePoints    ?? totalPts % MATURE_TREE_THRESHOLD
+    const baseMature   = data.matureTreeCount ?? Math.floor(totalPts / MATURE_TREE_THRESHOLD)
+
+    const newCycle  = current + points
+    const harvests  = Math.floor(newCycle / MATURE_TREE_THRESHOLD)
+    const remainder = newCycle % MATURE_TREE_THRESHOLD
+
+    tx.update(userRef, {
+      totalPoints:     increment(points),
+      cyclePoints:     remainder,
+      matureTreeCount: baseMature + harvests,
+    })
+  })
+
+  // Ghi pointHistory cho weekly ranking (ngoài transaction — non-critical)
+  addDoc(collection(db, 'pointHistory'), {
+    uid,
+    action,
+    points,
+    refId,
+    createdAt: serverTimestamp(),
+  }).catch(e => console.error('[pointHistory]', e.message))
 }
 
 /** Lấy rank chính xác bằng cách đếm số user có điểm cao hơn */

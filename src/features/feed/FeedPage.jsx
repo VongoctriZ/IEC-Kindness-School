@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { getRoleLabel } from '../../lib/utils'
+import { getRoleLabel, derivePointsDisplay } from '../../lib/utils'
 import { Link }   from 'react-router-dom'
 import { useFeedController }  from '../../mvc/controllers/useFeedController'
 import { useLeaderboard }     from '../../mvc/controllers/usePointsController'
@@ -18,7 +18,7 @@ const POINTS_RULES = [
 ]
 
 export default function FeedPage() {
-  const { posts, likedPosts, loading, handleLike, handleDelete } = useFeedController()
+  const { posts, likedPosts, loading, handleLike, handleDelete, loadMore, hasMore } = useFeedController()
   const { users: topUsers } = useLeaderboard(5)
   const { user, profile }   = useAuthStore()
 
@@ -68,6 +68,11 @@ export default function FeedPage() {
                   />
                 ))
           }
+          {!loading && hasMore && (
+            <button className={styles.loadMoreBtn} onClick={loadMore}>
+              Xem thêm bài viết
+            </button>
+          )}
         </div>
 
         {/* SIDEBAR */}
@@ -87,7 +92,12 @@ export default function FeedPage() {
                 <div className={styles.ucStat}><div className={styles.ucN}>112</div><div className={styles.ucL}>Likes nhận</div></div>
               </div>
               <div className={styles.ucProgressWrap}>
-                <KindnessProgress points={profile.totalPoints ?? 0} compact />
+                <KindnessProgress
+                points={profile.totalPoints ?? 0}
+                cyclePoints={derivePointsDisplay(profile).cyclePoints}
+                matureTreeCount={derivePointsDisplay(profile).matureTreeCount}
+                compact
+              />
               </div>
             </div>
           )}

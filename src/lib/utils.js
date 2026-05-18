@@ -36,20 +36,52 @@ export function validateFile(file, { MAX_FILE_SIZE, ACCEPTED_IMAGE_TYPES, ACCEPT
 }
 
 export const KINDNESS_TITLES = [
-  { min: 0,   icon: '🌰', title: 'Hạt giống'       },
-  { min: 20,  icon: '🌱', title: 'Mầm non'          },
-  { min: 50,  icon: '🌿', title: 'Chồi non'         },
-  { min: 100, icon: '🪴', title: 'Cây con'          },
-  { min: 200, icon: '🌳', title: 'Cây xanh'         },
-  { min: 400, icon: '🌲', title: 'Cây trưởng thành' },
-  { min: 700, icon: '🌴', title: 'Cây cổ thụ'       },
+  { min: 0,    icon: '🌰', title: 'Hạt giống'       },
+  { min: 50,   icon: '🌱', title: 'Mầm non'          },
+  { min: 150,  icon: '🌿', title: 'Chồi non'         },
+  { min: 320,  icon: '🪴', title: 'Cây con'          },
+  { min: 600,  icon: '🌳', title: 'Cây xanh'         },
+  { min: 1000, icon: '🌲', title: 'Cây trưởng thành' },
 ]
 
-export function getKindnessTitle(points = 0) {
+// Cây cổ thụ là achievement riêng, không nằm trong chu kỳ
+export const ANCIENT_TREE = { icon: '🌴', title: 'Cây cổ thụ' }
+
+export function getKindnessTitle(cyclePoints = 0) {
   for (let i = KINDNESS_TITLES.length - 1; i >= 0; i--) {
-    if (points >= KINDNESS_TITLES[i].min) return KINDNESS_TITLES[i]
+    if (cyclePoints >= KINDNESS_TITLES[i].min) return KINDNESS_TITLES[i]
   }
   return KINDNESS_TITLES[0]
+}
+
+/** Trích xuất số khối (6–12) từ chuỗi lớp bất kỳ format */
+export function extractGradeBlock(grade) {
+  if (!grade) return null
+  const match = grade.match(/(?<![0-9])([6-9]|1[0-2])(?![0-9])/)
+  return match ? parseInt(match[1], 10) : null
+}
+
+/**
+ * Trả về cyclePoints và matureTreeCount để hiển thị.
+ * Nếu user cũ chưa có các field này, derive từ totalPoints.
+ */
+export function derivePointsDisplay(profile) {
+  const total = profile?.totalPoints ?? 0
+  return {
+    cyclePoints:     profile?.cyclePoints     ?? total % 1000,
+    matureTreeCount: profile?.matureTreeCount ?? Math.floor(total / 1000),
+  }
+}
+
+/** Trả về thứ Hai đầu tuần hiện tại lúc 00:00:00 giờ địa phương */
+export function getStartOfWeek() {
+  const now = new Date()
+  const day = now.getDay()
+  const diff = day === 0 ? -6 : 1 - day
+  const monday = new Date(now)
+  monday.setDate(now.getDate() + diff)
+  monday.setHours(0, 0, 0, 0)
+  return monday
 }
 
 export function getRoleLabel(role) {

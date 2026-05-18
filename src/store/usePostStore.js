@@ -1,13 +1,16 @@
 import { create } from 'zustand'
+import { FEED_PAGE_SIZE, FEED_LOAD_MORE_SIZE } from '../lib/constants'
 
 const usePostStore = create((set, get) => ({
   posts:      [],
   likedPosts: new Set(),   // Set<postId>
   loading:    false,
+  feedLimit:  FEED_PAGE_SIZE,
 
   setPosts:      (posts)      => set({ posts }),
   setLoading:    (loading)    => set({ loading }),
   setLikedPosts: (likedPosts) => set({ likedPosts }),
+  increaseLimit: ()           => set(s => ({ feedLimit: s.feedLimit + FEED_LOAD_MORE_SIZE })),
 
   /** Optimistic like toggle — revert nếu server call thất bại */
   toggleLikeLocally(postId) {
